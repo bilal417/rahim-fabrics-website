@@ -1,0 +1,4 @@
+import { Router } from 'express'; import jwt from 'jsonwebtoken'; import rateLimit from 'express-rate-limit'; import User from '../models/User.js'; import { protect } from '../middleware/auth.js';
+const router=Router();const limiter=rateLimit({windowMs:15*60*1000,limit:10,standardHeaders:true,legacyHeaders:false});
+router.post('/login',limiter,async(req,res,next)=>{try{const {email,password}=req.body;const user=await User.findOne({email}).select('+password');if(!user||!(await user.comparePassword(password)))return res.status(401).json({message:'Invalid credentials'});const token=jwt.sign({id:user._id,role:user.role},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN||'7d'});res.json({token,user:{id:user._id,name:user.name,email:user.email,role:user.role}})}catch(e){next(e)}});
+router.get('/me',protect,(req,res)=>res.json(req.user));export default router;
