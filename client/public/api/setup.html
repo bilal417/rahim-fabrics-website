@@ -22,17 +22,18 @@
   <script>
     document.getElementById('setup-form').addEventListener('submit', async (event) => {
       event.preventDefault();
-      const button = event.currentTarget.querySelector('button');
+      const form = event.currentTarget;
+      const button = form.querySelector('button');
       const message = document.getElementById('message');
       button.disabled = true;
       message.className = 'message';
       try {
-        const response = await fetch('./setup', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(Object.fromEntries(new FormData(event.currentTarget)))});
+        const response = await fetch('./setup', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(Object.fromEntries(new FormData(form)))});
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Setup failed');
         message.textContent = 'Administrator created. You can now sign in at /admin/login.';
         message.className = 'message ok';
-        event.currentTarget.reset();
+        form.reset();
       } catch (error) {
         message.textContent = error.message;
         message.className = 'message error';
