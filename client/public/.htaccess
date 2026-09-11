@@ -1,0 +1,19 @@
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Preserve the Authorization header for PHP bearer-token authentication.
+  RewriteCond %{HTTP:Authorization} ^(.+)$
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
+  # Send API routes to the PHP front controller unless a real API file exists.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^api(?:/.*)?$ api/index.php [QSA,L]
+
+  # React Router fallback.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . index.html [L]
+</IfModule>

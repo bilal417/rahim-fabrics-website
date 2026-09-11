@@ -3,5 +3,7 @@ dist
 .env
 *.log
 .DS_Store
-server/uploads
-
+rahim-fabrics-hostinger.zip
+client/public/api/config.local.php
+client/public/uploads/products/*
+!client/public/uploads/products/.htaccess

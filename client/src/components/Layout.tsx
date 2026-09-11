@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Menu, MessageCircle, Phone, X, MapPin } from 'lucide-react';
+import { Mail, Menu, MessageCircle, Phone, X, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { whatsappUrl } from '../lib/data';
 
@@ -23,7 +23,7 @@ export default function Layout() {
       <div className="mx-auto grid max-w-[1320px] gap-12 border-b border-white/10 pb-14 md:grid-cols-4">
         <div className="md:col-span-2"><div className="font-display text-3xl text-white">Rahim Fabrics</div><p className="mt-4 max-w-md text-sm leading-7 text-white/55">Premium gents unstitched fabrics, supplied by the thaan to retailers, resellers and boutiques across Pakistan.</p></div>
         <div><div className="eyebrow">Visit our shop</div><p className="mt-4 flex gap-3 text-sm leading-6 text-white/65"><MapPin size={18} className="shrink-0 text-gold-400"/> Azam Market, Lahore, Pakistan</p></div>
-        <div><div className="eyebrow">Wholesale desk</div><a className="mt-4 flex gap-3 text-sm text-white/65" href="tel:+923001234567"><Phone size={17} className="text-gold-400"/> +92 300 1234567</a></div>
+        <div><div className="eyebrow">Wholesale desk</div><a className="mt-4 flex gap-3 text-sm text-white/65" href="tel:+923219454085"><Phone size={17} className="text-gold-400"/> +92 321 9454085</a><a className="mt-3 flex gap-3 text-sm text-white/65" href="mailto:info@rahimfabrics.site"><Mail size={17} className="text-gold-400"/> info@rahimfabrics.site</a></div>
       </div>
       <div className="mx-auto flex max-w-[1320px] flex-col justify-between gap-3 pt-7 text-[11px] uppercase tracking-wider text-white/35 sm:flex-row"><span>© {new Date().getFullYear()} Rahim Fabrics</span><Link to="/admin/login">Trade administration</Link></div>
     </footer>

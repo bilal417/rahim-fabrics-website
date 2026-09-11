@@ -1,6 +1,6 @@
 import type { Product } from '../types';
 
-export const WHATSAPP = import.meta.env.VITE_WHATSAPP_NUMBER || '923001234567';
+export const WHATSAPP = import.meta.env.VITE_WHATSAPP_NUMBER || '923219454085';
 export const whatsappUrl = (message: string) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
 
 export const products: Product[] = [
