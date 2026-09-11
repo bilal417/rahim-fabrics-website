@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rahim Fabrics Admin Setup</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#063f34;color:#17221f;font:15px/1.5 Arial,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px}.card{width:min(100%,480px);background:#f8f3e9;padding:36px;box-shadow:0 20px 60px #001a1580}h1{margin:0;color:#063f34;font:700 30px Georgia,serif}p{color:#52615d}label{display:block;margin-top:16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}input{width:100%;margin-top:7px;padding:13px;border:1px solid #c9c4b9;background:#fff;font:inherit}button{width:100%;margin-top:24px;padding:14px;border:0;background:#063f34;color:#fff;font-weight:700;cursor:pointer}.message{margin-top:18px;padding:12px;display:none}.ok{display:block;background:#d9f4e7;color:#075537}.error{display:block;background:#f9dddd;color:#8d1d1d}
+  </style>
+</head>
+<body>
+  <form class="card" id="setup-form">
+    <h1>Rahim Fabrics setup</h1>
+    <p>Create the first administrator. This form permanently disables itself after the first account is created.</p>
+    <label>Setup key<input name="setupKey" type="password" required autocomplete="off"></label>
+    <label>Admin name<input name="name" required value="Rahim Fabrics Admin"></label>
+    <label>Admin email<input name="email" type="email" required value="info@rahimfabrics.site"></label>
+    <label>Admin password<input name="password" type="password" minlength="10" required></label>
+    <button>Create administrator</button>
+    <div id="message" class="message"></div>
+  </form>
+  <script>
+    document.getElementById('setup-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const button = form.querySelector('button');
+      const message = document.getElementById('message');
+      button.disabled = true;
+      message.className = 'message';
+      try {
+        const response = await fetch('./setup', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(Object.fromEntries(new FormData(form)))});
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Setup failed');
+        message.textContent = 'Administrator created. You can now sign in at /admin/login.';
+        message.className = 'message ok';
+        form.reset();
+      } catch (error) {
+        message.textContent = error.message;
+        message.className = 'message error';
+      } finally { button.disabled = false; }
+    });
+  </script>
+</body>
+</html>

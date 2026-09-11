@@ -4,6 +4,10 @@ dist
 *.log
 .DS_Store
 rahim-fabrics-hostinger.zip
+rahim-fabrics-config.php
+api/config.local.php
+uploads/products/*
+!uploads/products/.htaccess
 client/public/api/config.local.php
 client/public/uploads/products/*
 !client/public/uploads/products/.htaccess

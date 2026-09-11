@@ -48,7 +48,7 @@ Alternatively run the production build locally and upload everything **inside** 
 
 ### 3. Configure private credentials
 
-In Hostinger File Manager, copy `public_html/api/config.example.php` to `public_html/api/config.local.php`. Fill in the actual database name, username, password, and two different random secrets:
+In Hostinger File Manager, create `rahim-fabrics-config.php` **one level above** `public_html`. Keeping it outside the public/deployment directory prevents future Git deployments from deleting or exposing it. Fill in the actual database name, username, password, and two different random secrets:
 
 ```php
 <?php
@@ -65,7 +65,7 @@ return [
 ];
 ```
 
-Never commit `config.local.php`; it is intentionally ignored by Git.
+The older `public_html/api/config.local.php` location remains supported as a fallback, but the file above `public_html` is recommended. Never commit either private configuration file.
 
 ### 4. Create the first administrator
 

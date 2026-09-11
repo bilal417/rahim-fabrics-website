@@ -1,0 +1,10 @@
+{
+  "name": "Rahim Fabrics",
+  "short_name": "Rahim Fabrics",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "theme_color": "#04362d",
+  "background_color": "#fbf8f2",
+  "display": "standalone"
+}
