@@ -41,12 +41,12 @@ export default function About() {
           <div className="flex justify-center">
             <Breadcrumbs items={crumbs} tone="dark" />
           </div>
-          <p className="eyebrow">Our story</p>
+          <p className="eyebrow">Our story · Azam Market</p>
           <h1 className="mt-5 font-display text-5xl font-semibold md:text-7xl">
-            A trusted name in the fabric trade.
+            {seo.h1}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl leading-8 text-white/60">
-            Rooted in Azam Market Lahore, Rahim Fabrics serves the people who bring quality menswear to markets across Pakistan with dependable wholesale supply by the thaan.
+            Rahim Fabrics is a trusted Azam Market fabric wholesaler serving retailers, dealers and boutiques with quality gents fabrics by the thaan across Pakistan.
           </p>
         </div>
       </section>

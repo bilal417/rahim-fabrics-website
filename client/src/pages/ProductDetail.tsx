@@ -142,10 +142,10 @@ export default function ProductDetail() {
             </div>
             <div className="lg:pl-8">
               <p className="eyebrow">
-                {product.category} · {product.code}
+                {product.category} wholesale · {product.code}
               </p>
               <h1 className="mt-4 font-display text-4xl font-semibold leading-tight text-emerald-950 md:text-5xl">
-                {product.name}
+                {seo.h1}
               </h1>
               <p className="mt-6 leading-8 text-black/55">{product.description}</p>
               <div className="mt-8 border-y border-black/10 py-6">

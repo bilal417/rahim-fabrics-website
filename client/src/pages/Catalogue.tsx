@@ -65,12 +65,12 @@ export default function Catalogue() {
       />
       <section className="bg-emerald-950 px-5 py-20 text-white md:px-10">
         <div className="mx-auto max-w-[1320px]">
-          <p className="eyebrow">Current stock</p>
+          <p className="eyebrow">Current stock · Azam Market</p>
           <h1 className="mt-4 font-display text-5xl font-semibold md:text-6xl">
-            Wholesale Fabric Collection
+            {seo.h1}
           </h1>
           <p className="mt-5 max-w-2xl text-white/55">
-            Browse available gents fabric ranges by thaan from Azam Market, Lahore. Wholesale prices are shared directly after buyer verification.
+            Explore wash & wear, cotton, khaddar and seasonal ranges sold by the thaan. Wholesale prices are shared directly after buyer verification.
           </p>
         </div>
       </section>

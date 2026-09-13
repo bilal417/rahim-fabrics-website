@@ -81,12 +81,12 @@ export default function Wholesale() {
             />
             <div className="relative">
               <Breadcrumbs items={crumbs} tone="dark" />
-              <p className="eyebrow">Trade account</p>
+              <p className="eyebrow">Trade account · Lahore</p>
               <h1 className="mt-5 font-display text-5xl font-semibold leading-tight">
-                Wholesale buyer registration
+                {seo.h1}
               </h1>
               <p className="mt-6 max-w-md leading-8 text-white/60">
-                Tell us what your customers buy. Our wholesale desk in Azam Market, Lahore will contact you with suitable lots, current availability and trade prices.
+                Tell us what your customers buy. Our Azam Market wholesale desk will contact you with suitable lots, current thaan availability and trade prices.
               </p>
               <ul className="mt-10 space-y-4">
                 {[

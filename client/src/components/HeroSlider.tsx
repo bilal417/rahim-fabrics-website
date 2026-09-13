@@ -50,10 +50,10 @@ export default function HeroSlider() {
         <div className="max-w-2xl reveal">
           <p className="eyebrow">Azam Market · Lahore</p>
           <h1 className="mt-6 max-w-full font-display text-[clamp(2.25rem,10vw,4.5rem)] font-semibold leading-[1.04]">
-            Premium Gents Fabrics <span className="block italic text-gold-400 sm:inline">Wholesale</span>{' '}Supplier
+            Gents Fabrics <span className="block italic text-gold-400 sm:inline">Wholesale</span>{' '}in Azam Market Lahore
           </h1>
           <p className="mt-7 max-w-lg text-lg leading-8 text-white/75">
-            Quality fabrics from Azam Market Lahore, curated by the thaan for dealers, retailers and boutiques across Pakistan.
+            Premium gents fabrics wholesale in Lahore — wash & wear, cotton and khaddar curated by the thaan for dealers, retailers and boutiques across Pakistan.
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Link to="/catalogue" className="btn-primary">View Collection <ArrowRight size={17} /></Link>
