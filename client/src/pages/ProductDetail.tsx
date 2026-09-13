@@ -1,6 +1,7 @@
 import { ArrowLeft, Check, MessageCircle, PackageCheck, Ruler, Share2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import Seo from '../components/Seo';
 import { api } from '../lib/api';
 import { products, whatsappUrl } from '../lib/data';
 import type { Product } from '../types';
@@ -10,11 +11,18 @@ export default function ProductDetail(){
  const [product,setProduct]=useState<Product|undefined>(products.find(p=>p.slug===slug||p._id===slug));
  const [activeImage,setActiveImage]=useState(0);
  useEffect(()=>{api.get(`/products/${slug}`).then(r=>setProduct(r.data)).catch(()=>undefined)},[slug]);
- if(!product)return <div className="section text-center"><h1 className="font-display text-4xl">Fabric not found</h1><Link to="/catalogue" className="btn-dark mt-6">Back to collection</Link></div>;
+ if(!product)return <><Seo title="Fabric Not Found | Rahim Fabrics" description="This fabric range is not available in the Rahim Fabrics wholesale catalogue." path={`/products/${slug||''}`} noindex={true} /><div className="section text-center"><h1 className="font-display text-4xl">Fabric not found</h1><Link to="/catalogue" className="btn-dark mt-6">Back to collection</Link></div></>;
  const urls=product.images.map(image=>typeof image==='string'?image:image.url).filter(Boolean);
  const photo=urls[activeImage],uploadedPhoto=photo&&!photo.includes('fabric-collection');
  const msg=`Assalam-o-Alaikum, please share the wholesale price and availability for ${product.name} (${product.code}).`;
- return <section className="section pt-10"><div className="mx-auto max-w-[1320px]">
+ const image=urls[0]||'/logo.webp';
+ return <><Seo
+  title={`${product.name} Wholesale | Rahim Fabrics Lahore`}
+  description={`${product.description} Available by the thaan from Rahim Fabrics, Azam Market Lahore.`}
+  path={`/products/${product.slug}`}
+  image={image}
+  type="product"
+ /><section className="section pt-10"><div className="mx-auto max-w-[1320px]">
   <Link to="/catalogue" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-black/50"><ArrowLeft size={16}/> Back to collection</Link>
   <div className="grid gap-12 lg:grid-cols-[1.08fr_.92fr]">
    <div className="grid gap-3 sm:grid-cols-[1fr_110px]">
@@ -27,7 +35,7 @@ export default function ProductDetail(){
     <div className="mt-9 rounded-sm bg-cream p-6"><p className="font-display text-xl font-semibold text-emerald-950">Request wholesale price</p><p className="mt-2 text-sm leading-6 text-black/50">Prices depend on quantity and current lot. Message our trade desk for a prompt quote.</p><a href={whatsappUrl(msg)} target="_blank" className="btn-dark mt-5 w-full"><MessageCircle size={18}/> Contact on WhatsApp</a></div>
    </div>
   </div>
- </div></section>
+ </div></section></>
 }
 
 function Spec({icon,label,value}:{icon:React.ReactNode,label:string,value:string}){return <div className="flex gap-3 [&_svg]:mt-1 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0 [&_svg]:text-gold-500"><div>{icon}</div><div><div className="text-[10px] font-bold uppercase tracking-wider text-black/35">{label}</div><div className="mt-1 text-sm font-semibold text-emerald-950">{value}</div></div></div>}
