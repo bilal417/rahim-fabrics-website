@@ -46,7 +46,7 @@ export default function About() {
             {seo.h1}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl leading-8 text-white/60">
-            Rahim Fabrics is a trusted Azam Market fabric wholesaler serving retailers, dealers and boutiques with quality gents fabrics by the thaan across Pakistan.
+            Rahim Fabrics is an Azam Market fabric shop serving retail customers by the metre and wholesale buyers by the thaan across Pakistan.
           </p>
         </div>
       </section>
@@ -56,7 +56,7 @@ export default function About() {
             [
               MapPin,
               'Market rooted',
-              'We understand wholesale because we work at the heart of Lahore’s fabric trade in Azam Market.',
+              'We work at the heart of Lahore’s fabric trade in Azam Market — for personal orders and shop stock alike.',
             ],
             [
               BadgeCheck,
@@ -65,8 +65,8 @@ export default function About() {
             ],
             [
               Handshake,
-              'Relationship led',
-              'Clear communication and repeat business matter more than one-off transactions.',
+              'Clear checkout',
+              'Shop online with retail or wholesale pricing, then pay by COD or bank transfer.',
             ],
           ].map(([Icon, t, d]) => (
             <div key={String(t)}>

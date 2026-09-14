@@ -110,6 +110,15 @@ try {
         $colors = array_values(array_filter(array_map('trim', $colors)));
         $suits = max(1, (int) ($data['suitsPerThaan'] ?? 0));
         $stock = max(0, (int) ($data['stock'] ?? 0));
+        $stockMeters = max(0, (int) ($data['stockMeters'] ?? 0));
+        $retailPrice = max(0, (float) ($data['retailPrice'] ?? 0));
+        $wholesalePrice = max(0, (float) ($data['wholesalePrice'] ?? 0));
+        $retailUnit = (string) ($data['retailUnit'] ?? 'meter');
+        if (!in_array($retailUnit, ['meter', 'suit'], true)) {
+            $retailUnit = 'meter';
+        }
+        $minRetailQty = max(1, (int) ($data['minRetailQty'] ?? 1));
+        $minWholesaleQty = max(1, (int) ($data['minWholesaleQty'] ?? 1));
         $featured = filter_var($data['featured'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
         $newImages = uploadedImages();
         $pdo = db();
@@ -124,11 +133,11 @@ try {
                     foreach ($newImages as $url) removeLocalImage($url);
                     fail('Product not found.', 404);
                 }
-                $statement = $pdo->prepare('UPDATE products SET name=?, slug=?, code=?, category=?, fabric_type=?, colors=?, thaan_length=?, suits_per_thaan=?, stock=?, description=?, featured=? WHERE id=?');
-                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $description, $featured, $id]);
+                $statement = $pdo->prepare('UPDATE products SET name=?, slug=?, code=?, category=?, fabric_type=?, colors=?, thaan_length=?, suits_per_thaan=?, stock=?, stock_meters=?, retail_price=?, wholesale_price=?, retail_unit=?, min_retail_qty=?, min_wholesale_qty=?, description=?, featured=? WHERE id=?');
+                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $retailPrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $description, $featured, $id]);
             } else {
-                $statement = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $description, $featured]);
+                $statement = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, retail_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $retailPrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $description, $featured]);
                 $id = (int) $pdo->lastInsertId();
             }
             if ($newImages) {
@@ -244,6 +253,208 @@ try {
         $inquiry = $statement->fetch();
         if (!$inquiry) fail('Inquiry not found.', 404);
         respond(inquiryJson($inquiry));
+    }
+
+    if ($method === 'GET' && $route === '/checkout/payment-options') {
+        respond([
+            'methods' => ['cod', 'bank_transfer'],
+            'bankDetails' => bankPaymentDetails(),
+            'note' => 'Delivery charges are confirmed after order review. Product total is charged at checkout.',
+        ]);
+    }
+
+    if ($method === 'POST' && $route === '/orders') {
+        $data = input();
+        $channel = (string) ($data['channel'] ?? '');
+        if (!in_array($channel, ['retail', 'wholesale'], true)) {
+            fail('Choose retail or wholesale checkout.', 422);
+        }
+        $paymentMethod = (string) ($data['paymentMethod'] ?? '');
+        if (!in_array($paymentMethod, ['cod', 'bank_transfer'], true)) {
+            fail('Choose a valid payment method.', 422);
+        }
+        $customerName = requiredText($data, 'customerName', 'Customer name');
+        $phone = requiredText($data, 'phone', 'Phone');
+        $city = requiredText($data, 'city', 'City');
+        $address = requiredText($data, 'address', 'Address');
+        $email = trim((string) ($data['email'] ?? ''));
+        $businessName = trim((string) ($data['businessName'] ?? ''));
+        $notes = trim((string) ($data['notes'] ?? ''));
+        $itemsInput = $data['items'] ?? [];
+        if (!is_array($itemsInput) || !$itemsInput) {
+            fail('Add at least one item to the order.', 422);
+        }
+
+        $pdo = db();
+        $pdo->beginTransaction();
+        try {
+            $normalized = [];
+            $subtotal = 0.0;
+            foreach ($itemsInput as $item) {
+                if (!is_array($item)) {
+                    fail('Invalid order item.', 422);
+                }
+                $productId = (int) ($item['productId'] ?? 0);
+                $qty = (float) ($item['qty'] ?? 0);
+                if ($productId <= 0 || $qty <= 0) {
+                    fail('Each item needs a product and quantity.', 422);
+                }
+                $statement = $pdo->prepare('SELECT * FROM products WHERE id = ? LIMIT 1 FOR UPDATE');
+                $statement->execute([$productId]);
+                $product = $statement->fetch();
+                if (!$product) {
+                    fail('One of the products is no longer available.', 404);
+                }
+
+                if ($channel === 'retail') {
+                    $unit = (string) ($product['retail_unit'] ?? 'meter');
+                    $unitPrice = (float) $product['retail_price'];
+                    $minQty = max(1, (int) ($product['min_retail_qty'] ?? 1));
+                    if ($qty < $minQty) {
+                        fail($product['name'] . ' requires at least ' . $minQty . ' ' . $unit . '(s).', 422);
+                    }
+                    if ($qty > (int) ($product['stock_meters'] ?? 0)) {
+                        fail('Not enough retail stock for ' . $product['name'] . '.', 422);
+                    }
+                    $pdo->prepare('UPDATE products SET stock_meters = stock_meters - ? WHERE id = ?')
+                        ->execute([$qty, $productId]);
+                } else {
+                    $unit = 'thaan';
+                    $unitPrice = (float) $product['wholesale_price'];
+                    $minQty = max(1, (int) ($product['min_wholesale_qty'] ?? 1));
+                    if ($qty < $minQty) {
+                        fail($product['name'] . ' requires at least ' . $minQty . ' thaan(s).', 422);
+                    }
+                    if ($qty > (int) $product['stock']) {
+                        fail('Not enough wholesale stock for ' . $product['name'] . '.', 422);
+                    }
+                    $pdo->prepare('UPDATE products SET stock = stock - ? WHERE id = ?')
+                        ->execute([(int) $qty, $productId]);
+                }
+
+                if ($unitPrice <= 0) {
+                    fail('Pricing is not configured for ' . $product['name'] . '.', 422);
+                }
+
+                $lineTotal = round($unitPrice * $qty, 2);
+                $subtotal += $lineTotal;
+                $normalized[] = [
+                    'product_id' => $productId,
+                    'product_name' => $product['name'],
+                    'product_code' => $product['code'],
+                    'unit' => $unit,
+                    'qty' => $qty,
+                    'unit_price' => $unitPrice,
+                    'line_total' => $lineTotal,
+                ];
+            }
+
+            $orderNumber = generateOrderNumber($pdo);
+            $paymentStatus = $paymentMethod === 'cod' ? 'cod_pending' : 'pending';
+            $total = round($subtotal, 2);
+            $insert = $pdo->prepare('INSERT INTO orders (order_number, channel, customer_name, business_name, phone, email, city, address, payment_method, payment_status, order_status, subtotal, total, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $insert->execute([
+                $orderNumber,
+                $channel,
+                $customerName,
+                $businessName !== '' ? $businessName : null,
+                $phone,
+                $email !== '' ? $email : null,
+                $city,
+                $address,
+                $paymentMethod,
+                $paymentStatus,
+                'new',
+                $subtotal,
+                $total,
+                $notes !== '' ? $notes : null,
+            ]);
+            $orderId = (int) $pdo->lastInsertId();
+            $itemInsert = $pdo->prepare('INSERT INTO order_items (order_id, product_id, product_name, product_code, unit, qty, unit_price, line_total) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+            foreach ($normalized as $line) {
+                $itemInsert->execute([
+                    $orderId,
+                    $line['product_id'],
+                    $line['product_name'],
+                    $line['product_code'],
+                    $line['unit'],
+                    $line['qty'],
+                    $line['unit_price'],
+                    $line['line_total'],
+                ]);
+            }
+            $pdo->commit();
+        } catch (Throwable $error) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $error;
+        }
+
+        $statement = db()->prepare('SELECT * FROM orders WHERE id = ?');
+        $statement->execute([$orderId]);
+        respond(orderJson($statement->fetch()), 201);
+    }
+
+    if ($method === 'GET' && $route === '/orders') {
+        requireAuth();
+        $rows = db()->query('SELECT * FROM orders ORDER BY created_at DESC')->fetchAll();
+        respond(array_map('orderJson', $rows));
+    }
+
+    if ($method === 'GET' && preg_match('#^/orders/([^/]+)$#', $route, $matches)) {
+        $identifier = $matches[1];
+        if (ctype_digit($identifier)) {
+            requireAuth();
+            $statement = db()->prepare('SELECT * FROM orders WHERE id = ? LIMIT 1');
+            $statement->execute([(int) $identifier]);
+        } else {
+            $statement = db()->prepare('SELECT * FROM orders WHERE order_number = ? LIMIT 1');
+            $statement->execute([$identifier]);
+        }
+        $order = $statement->fetch();
+        if (!$order) {
+            fail('Order not found.', 404);
+        }
+        respond(orderJson($order));
+    }
+
+    if ($method === 'PATCH' && preg_match('#^/orders/(\d+)$#', $route, $matches)) {
+        requireAuth();
+        $data = input();
+        $orderStatus = (string) ($data['orderStatus'] ?? '');
+        $paymentStatus = (string) ($data['paymentStatus'] ?? '');
+        $allowedOrder = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+        $allowedPayment = ['pending', 'cod_pending', 'paid', 'failed', 'refunded'];
+        if ($orderStatus !== '' && !in_array($orderStatus, $allowedOrder, true)) {
+            fail('Invalid order status.', 422);
+        }
+        if ($paymentStatus !== '' && !in_array($paymentStatus, $allowedPayment, true)) {
+            fail('Invalid payment status.', 422);
+        }
+        if ($orderStatus === '' && $paymentStatus === '') {
+            fail('Provide orderStatus or paymentStatus.', 422);
+        }
+        $fields = [];
+        $params = [];
+        if ($orderStatus !== '') {
+            $fields[] = 'order_status = ?';
+            $params[] = $orderStatus;
+        }
+        if ($paymentStatus !== '') {
+            $fields[] = 'payment_status = ?';
+            $params[] = $paymentStatus;
+        }
+        $params[] = (int) $matches[1];
+        $statement = db()->prepare('UPDATE orders SET ' . implode(', ', $fields) . ' WHERE id = ?');
+        $statement->execute($params);
+        $statement = db()->prepare('SELECT * FROM orders WHERE id = ?');
+        $statement->execute([(int) $matches[1]]);
+        $order = $statement->fetch();
+        if (!$order) {
+            fail('Order not found.', 404);
+        }
+        respond(orderJson($order));
     }
 
     fail('Route not found.', 404);

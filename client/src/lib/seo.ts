@@ -30,7 +30,7 @@ export const localBusinessSchema = {
   image: DEFAULT_IMAGE,
   logo: DEFAULT_IMAGE,
   description:
-    'Premium gents fabrics wholesale supplier in Azam Market, Lahore. Wash & wear, cotton, khaddar and seasonal fabrics sold by the thaan.',
+    'Premium gents fabrics for retail and wholesale from Azam Market, Lahore. Shop by the metre or buy by the thaan — wash & wear, cotton, khaddar and seasonal ranges.',
   telephone: BUSINESS_PHONE,
   email: BUSINESS_EMAIL,
   address: {
@@ -101,7 +101,7 @@ export function websiteSchema() {
     url: SITE_URL,
     name: SITE_NAME,
     description:
-      'Wholesale gents fabrics from Azam Market Lahore — wash & wear, cotton, khaddar and seasonal ranges by the thaan.',
+      'Shop premium gents fabrics online from Azam Market Lahore — retail by the metre and wholesale by the thaan.',
     publisher: { '@id': `${SITE_URL}/#organization` },
     inLanguage: 'en-PK',
   };
@@ -128,18 +128,32 @@ export function productSchema(product: Product) {
     image: image.length ? image : [DEFAULT_IMAGE],
     material: product.fabricType,
     color: product.colors.join(', '),
-    offers: {
-      '@type': 'Offer',
-      url: absoluteUrl(path),
-      priceCurrency: 'PKR',
-      availability:
-        product.stock > 0
-          ? 'https://schema.org/InStock'
-          : 'https://schema.org/PreOrder',
-      itemCondition: 'https://schema.org/NewCondition',
-      seller: { '@id': `${SITE_URL}/#organization` },
-      description: 'Wholesale price shared on inquiry after buyer verification.',
-    },
+    offers: [
+      {
+        '@type': 'Offer',
+        url: absoluteUrl(path),
+        priceCurrency: 'PKR',
+        price: Number(product.retailPrice || 0),
+        availability:
+          (product.stockMeters ?? 0) > 0 || product.stock > 0
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/PreOrder',
+        itemCondition: 'https://schema.org/NewCondition',
+        seller: { '@id': `${SITE_URL}/#organization` },
+        description: `Retail price per ${product.retailUnit || 'meter'}`,
+      },
+      {
+        '@type': 'Offer',
+        url: absoluteUrl(path),
+        priceCurrency: 'PKR',
+        price: Number(product.wholesalePrice || 0),
+        availability:
+          product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+        itemCondition: 'https://schema.org/NewCondition',
+        seller: { '@id': `${SITE_URL}/#organization` },
+        description: 'Wholesale price per thaan',
+      },
+    ],
     additionalProperty: [
       {
         '@type': 'PropertyValue',
@@ -169,23 +183,23 @@ export function itemListSchema(products: Product[]) {
 
 export const pageSeo = {
   home: {
-    primaryKeyword: 'gents fabrics wholesale Lahore',
-    h1: 'Gents Fabrics Wholesale in Azam Market Lahore',
-    title: 'Gents Fabrics Wholesale Lahore | Rahim Fabrics Azam Market',
+    primaryKeyword: 'gents fabrics Lahore',
+    h1: 'Gents Fabrics for Retail & Wholesale in Lahore',
+    title: 'Gents Fabrics Lahore | Retail & Wholesale | Rahim Fabrics',
     description:
-      'Rahim Fabrics supplies gents fabrics wholesale in Lahore from Azam Market. Buy wash & wear, cotton, khaddar and seasonal fabrics by the thaan for shops across Pakistan.',
+      'Shop premium gents fabrics in Lahore from Rahim Fabrics, Azam Market. Buy by the metre for retail orders or by the thaan for wholesale — wash & wear, cotton, khaddar and more.',
     keywords:
-      'gents fabrics wholesale Lahore, Azam Market fabric supplier, wash and wear wholesale Lahore, cotton fabric thaan, khaddar wholesale Lahore, unstitched gents fabric wholesale, Rahim Fabrics',
+      'gents fabrics Lahore, buy fabric online Lahore, fabric retail Lahore, gents fabrics wholesale Lahore, Azam Market fabric shop, wash and wear fabric Lahore, Rahim Fabrics',
     path: '/',
   },
   catalogue: {
-    primaryKeyword: 'wholesale fabric collection Lahore',
-    h1: 'Wholesale Fabric Collection in Lahore',
-    title: 'Wholesale Fabric Collection Lahore | Wash & Wear, Cotton, Khaddar',
+    primaryKeyword: 'buy fabric online Lahore',
+    h1: 'Shop Fabrics Online in Lahore',
+    title: 'Shop Fabrics Online Lahore | Retail & Wholesale | Rahim Fabrics',
     description:
-      'Browse the wholesale fabric collection in Lahore from Rahim Fabrics. Current wash & wear, cotton, khaddar, summer and winter stock sold by the thaan from Azam Market.',
+      'Browse wash & wear, cotton, khaddar and seasonal fabrics online. Clear retail prices per metre plus wholesale thaan rates from Rahim Fabrics, Azam Market Lahore.',
     keywords:
-      'wholesale fabric collection Lahore, wash and wear wholesale Lahore, cotton fabric wholesale, khaddar wholesale Azam Market, gents fabric catalogue, fabric thaan Lahore',
+      'buy fabric online Lahore, fabric shop Lahore, wash and wear fabric price, cotton fabric retail Lahore, wholesale fabric collection, Azam Market fabric catalogue',
     path: '/catalogue',
   },
   wholesale: {
@@ -199,26 +213,27 @@ export const pageSeo = {
     path: '/wholesale',
   },
   about: {
-    primaryKeyword: 'Azam Market fabric wholesaler',
-    h1: 'Azam Market Fabric Wholesaler in Lahore',
-    title: 'Azam Market Fabric Wholesaler Lahore | About Rahim Fabrics',
+    primaryKeyword: 'Azam Market fabric shop',
+    h1: 'Azam Market Fabric Shop for Retail & Wholesale',
+    title: 'Azam Market Fabric Shop Lahore | About Rahim Fabrics',
     description:
-      'Rahim Fabrics is an Azam Market fabric wholesaler in Lahore supplying quality gents fabrics by the thaan to retailers, dealers and boutiques across Pakistan.',
+      'Rahim Fabrics is an Azam Market fabric shop in Lahore serving retail customers by the metre and wholesale buyers by the thaan across Pakistan.',
     keywords:
-      'Azam Market fabric wholesaler, Lahore gents fabric supplier, fabric wholesaler Azam Market, about Rahim Fabrics, fabric trade Lahore',
+      'Azam Market fabric shop, Lahore gents fabric supplier, fabric retail Lahore, fabric wholesaler Azam Market, about Rahim Fabrics',
     path: '/about',
   },
 } as const;
 
 export function productPageSeo(product: Product) {
   const path = `/products/${product.slug || product._id}`;
-  const primaryKeyword = `${product.name} wholesale Lahore`;
+  const primaryKeyword = `${product.name} fabric Lahore`;
+  const retail = product.retailPrice ? ` Retail from PKR ${product.retailPrice.toLocaleString('en-PK')}/${product.retailUnit || 'meter'}.` : '';
   return {
     primaryKeyword,
-    h1: `${product.name} Wholesale Fabric`,
-    title: `${product.name} Wholesale Lahore | ${product.category} Thaan | Rahim Fabrics`,
-    description: `Buy ${product.name} wholesale in Lahore. ${product.description} ${product.fabricType} available by the thaan from Rahim Fabrics, Azam Market. Colours: ${product.colors.slice(0, 4).join(', ')}.`,
-    keywords: `${primaryKeyword}, ${product.category} wholesale Lahore, ${product.fabricType} thaan, ${product.code}, Azam Market fabric supplier`,
+    h1: product.name,
+    title: `${product.name} | Buy Online Lahore | Rahim Fabrics`,
+    description: `Buy ${product.name} online from Rahim Fabrics, Azam Market Lahore.${retail} ${product.description} Also available wholesale by the thaan. Colours: ${product.colors.slice(0, 4).join(', ')}.`,
+    keywords: `${primaryKeyword}, ${product.category} fabric Lahore, ${product.fabricType}, ${product.code}, buy fabric online Lahore, wholesale thaan`,
     path,
   };
 }

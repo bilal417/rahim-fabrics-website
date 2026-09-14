@@ -1,18 +1,24 @@
-import { ArrowLeft, Check, MessageCircle, PackageCheck, Ruler, Share2 } from 'lucide-react';
+import { ArrowLeft, Check, MessageCircle, PackageCheck, Ruler, Share2, ShoppingBag } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Seo, { Breadcrumbs } from '../components/Seo';
+import { useCart } from '../context/CartContext';
 import { api } from '../lib/api';
 import { products, whatsappUrl } from '../lib/data';
 import { productPageSeo, productSchema, webPageSchema } from '../lib/seo';
-import type { Product } from '../types';
+import { formatPkr, type Product } from '../types';
 
 export default function ProductDetail() {
   const { slug } = useParams();
+  const nav = useNavigate();
+  const { addProduct } = useCart();
   const [product, setProduct] = useState<Product | undefined>(
     products.find((p) => p.slug === slug || p._id === slug),
   );
   const [activeImage, setActiveImage] = useState(0);
+  const [retailQty, setRetailQty] = useState(2);
+  const [wholesaleQty, setWholesaleQty] = useState(1);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     api
@@ -21,10 +27,16 @@ export default function ProductDetail() {
       .catch(() => undefined);
   }, [slug]);
 
+  useEffect(() => {
+    if (!product) return;
+    setRetailQty(Math.max(1, product.minRetailQty || 2));
+    setWholesaleQty(Math.max(1, product.minWholesaleQty || 1));
+  }, [product]);
+
   const crumbs = useMemo(
     () => [
       { name: 'Home', path: '/' },
-      { name: 'Collection', path: '/catalogue' },
+      { name: 'Shop', path: '/catalogue' },
       {
         name: product?.name || 'Product',
         path: `/products/${product?.slug || slug || ''}`,
@@ -38,14 +50,14 @@ export default function ProductDetail() {
       <>
         <Seo
           title="Fabric Not Found | Rahim Fabrics"
-          description="This fabric range is not available in the Rahim Fabrics wholesale catalogue."
+          description="This fabric range is not available in the Rahim Fabrics shop."
           path={`/products/${slug || ''}`}
           noindex={true}
         />
         <div className="section text-center">
           <h1 className="font-display text-4xl">Fabric not found</h1>
           <Link to="/catalogue" className="btn-dark mt-6">
-            Back to collection
+            Back to shop
           </Link>
         </div>
       </>
@@ -57,9 +69,29 @@ export default function ProductDetail() {
     .filter(Boolean);
   const photo = urls[activeImage];
   const uploadedPhoto = photo && !photo.includes('fabric-collection');
-  const msg = `Assalam-o-Alaikum, please share the wholesale price and availability for ${product.name} (${product.code}).`;
   const image = urls[0] || '/logo.webp';
   const seo = productPageSeo(product);
+  const retailUnit = product.retailUnit || 'meter';
+
+  function addRetail() {
+    const error = addProduct(product!, 'retail', retailQty);
+    if (error) {
+      setMessage(error);
+      return;
+    }
+    setMessage('Added to retail cart.');
+    nav('/cart');
+  }
+
+  function addWholesale() {
+    const error = addProduct(product!, 'wholesale', wholesaleQty);
+    if (error) {
+      setMessage(error);
+      return;
+    }
+    setMessage('Added to wholesale cart.');
+    nav('/cart');
+  }
 
   return (
     <>
@@ -87,11 +119,8 @@ export default function ProductDetail() {
       <section className="section pt-10">
         <div className="mx-auto max-w-[1320px]">
           <Breadcrumbs items={crumbs} />
-          <Link
-            to="/catalogue"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-black/50"
-          >
-            <ArrowLeft size={16} /> Back to collection
+          <Link to="/catalogue" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-black/50">
+            <ArrowLeft size={16} /> Back to shop
           </Link>
           <div className="grid gap-12 lg:grid-cols-[1.08fr_.92fr]">
             <div className="grid gap-3 sm:grid-cols-[1fr_110px]">
@@ -103,7 +132,7 @@ export default function ProductDetail() {
                     : { backgroundPosition: product.tilePosition || 'center' }
                 }
                 role="img"
-                aria-label={`${product.name} wholesale fabric sample`}
+                aria-label={`${product.name} fabric sample`}
               />
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-1">
                 {urls.length > 1 ? (
@@ -118,36 +147,68 @@ export default function ProductDetail() {
                     />
                   ))
                 ) : (
-                  <>
-                    <div
-                      className="fabric-tile min-h-28 border-2 border-gold-500"
-                      style={{ backgroundPosition: product.tilePosition || 'center' }}
-                      role="img"
-                      aria-label={`${product.name} fabric swatch`}
-                    />
-                    <div
-                      className="min-h-28 bg-[url('/images/showroom-hero.webp')] bg-cover bg-center"
-                      role="img"
-                      aria-label="Rahim Fabrics showroom"
-                    />
-                    <div
-                      className="fabric-tile min-h-28 [background-size:150%]"
-                      style={{ backgroundPosition: product.tilePosition || 'center' }}
-                      role="img"
-                      aria-label={`${product.name} detail texture`}
-                    />
-                  </>
+                  <div
+                    className="fabric-tile min-h-28 border-2 border-gold-500"
+                    style={{ backgroundPosition: product.tilePosition || 'center' }}
+                    role="img"
+                    aria-label={`${product.name} fabric swatch`}
+                  />
                 )}
               </div>
             </div>
             <div className="lg:pl-8">
               <p className="eyebrow">
-                {product.category} wholesale · {product.code}
+                {product.category} · {product.code}
               </p>
               <h1 className="mt-4 font-display text-4xl font-semibold leading-tight text-emerald-950 md:text-5xl">
                 {seo.h1}
               </h1>
               <p className="mt-6 leading-8 text-black/55">{product.description}</p>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-sm border border-emerald-950/10 bg-cream p-5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-black/40">Retail price</p>
+                  <p className="mt-2 font-display text-3xl font-semibold text-emerald-950">
+                    {formatPkr(product.retailPrice || 0)}
+                  </p>
+                  <p className="mt-1 text-sm text-black/45">per {retailUnit}</p>
+                  <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-black/40">
+                    Quantity ({retailUnit})
+                    <input
+                      type="number"
+                      min={product.minRetailQty || 1}
+                      value={retailQty}
+                      onChange={(e) => setRetailQty(Number(e.target.value) || 1)}
+                      className="field mt-2"
+                    />
+                  </label>
+                  <button type="button" onClick={addRetail} className="btn-dark mt-4 w-full">
+                    <ShoppingBag size={17} /> Add retail to cart
+                  </button>
+                </div>
+                <div className="rounded-sm border border-emerald-950/10 bg-white p-5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-black/40">Wholesale price</p>
+                  <p className="mt-2 font-display text-3xl font-semibold text-emerald-950">
+                    {formatPkr(product.wholesalePrice || 0)}
+                  </p>
+                  <p className="mt-1 text-sm text-black/45">per thaan</p>
+                  <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-black/40">
+                    Quantity (thaan)
+                    <input
+                      type="number"
+                      min={product.minWholesaleQty || 1}
+                      value={wholesaleQty}
+                      onChange={(e) => setWholesaleQty(Number(e.target.value) || 1)}
+                      className="field mt-2"
+                    />
+                  </label>
+                  <button type="button" onClick={addWholesale} className="btn-outline mt-4 w-full border-emerald-950 text-emerald-950">
+                    Add thaan to cart
+                  </button>
+                </div>
+              </div>
+              {message && <p className="mt-4 text-sm font-semibold text-emerald-900">{message}</p>}
+
               <div className="mt-8 border-y border-black/10 py-6">
                 <div className="grid grid-cols-2 gap-5">
                   <Spec icon={<Ruler />} label="Thaan length" value={product.thaanLength} />
@@ -158,20 +219,15 @@ export default function ProductDetail() {
                   />
                   <Spec
                     icon={<Check />}
-                    label="Availability"
-                    value={
-                      product.stock > 0
-                        ? `${product.stock} thaans in stock`
-                        : 'Confirm on inquiry'
-                    }
+                    label="Retail stock"
+                    value={`${product.stockMeters ?? 0} metres`}
                   />
-                  <Spec icon={<Share2 />} label="Fabric" value={product.fabricType} />
+                  <Spec icon={<Share2 />} label="Wholesale stock" value={`${product.stock} thaans`} />
                 </div>
               </div>
+
               <div className="mt-7">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-black/45">
-                  Available colours
-                </h2>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-black/45">Available colours</h2>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {product.colors.map((c) => (
                     <span
@@ -183,17 +239,17 @@ export default function ProductDetail() {
                   ))}
                 </div>
               </div>
-              <div className="mt-9 rounded-sm bg-cream p-6">
-                <h2 className="font-display text-xl font-semibold text-emerald-950">
-                  Request wholesale price
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-black/50">
-                  Prices depend on quantity and current lot. Message our trade desk for a prompt quote from Azam Market, Lahore.
-                </p>
-                <a href={whatsappUrl(msg)} target="_blank" rel="noreferrer" className="btn-dark mt-5 w-full">
-                  <MessageCircle size={18} /> Contact on WhatsApp
-                </a>
-              </div>
+
+              <a
+                href={whatsappUrl(
+                  `Assalam-o-Alaikum, I am interested in ${product.name} (${product.code}). Please confirm availability.`,
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-emerald-900"
+              >
+                <MessageCircle size={16} /> Prefer WhatsApp help?
+              </a>
             </div>
           </div>
         </div>

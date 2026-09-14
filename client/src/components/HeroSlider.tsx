@@ -50,16 +50,16 @@ export default function HeroSlider() {
         <div className="max-w-2xl reveal">
           <p className="eyebrow">Azam Market · Lahore</p>
           <h1 className="mt-6 max-w-full font-display text-[clamp(2.25rem,10vw,4.5rem)] font-semibold leading-[1.04]">
-            Gents Fabrics <span className="block italic text-gold-400 sm:inline">Wholesale</span>{' '}in Azam Market Lahore
+            Gents Fabrics <span className="block italic text-gold-400 sm:inline">for Retail</span>{' '}& Wholesale
           </h1>
           <p className="mt-7 max-w-lg text-lg leading-8 text-white/75">
-            Premium gents fabrics wholesale in Lahore — wash & wear, cotton and khaddar curated by the thaan for dealers, retailers and boutiques across Pakistan.
+            Shop by the metre for personal orders, or buy by the thaan for your business — quality fabrics from Azam Market, Lahore.
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link to="/catalogue" className="btn-primary">View Collection <ArrowRight size={17} /></Link>
-            <a href={whatsappUrl('Assalam-o-Alaikum, I would like to view your wholesale collection.')} target="_blank" rel="noreferrer" className="btn-outline bg-black/15 backdrop-blur-sm">
-              <MessageCircle size={17} /> WhatsApp Wholesale Inquiry
-            </a>
+            <Link to="/catalogue" className="btn-primary">Shop fabrics <ArrowRight size={17} /></Link>
+            <Link to="/wholesale" className="btn-outline bg-black/15 backdrop-blur-sm">
+              Wholesale / thaan orders
+            </Link>
           </div>
         </div>
       </div>

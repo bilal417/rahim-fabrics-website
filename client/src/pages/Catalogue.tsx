@@ -58,7 +58,7 @@ export default function Catalogue() {
           {
             '@context': 'https://schema.org',
             ...itemListSchema(shown.slice(0, 24)),
-            name: 'Rahim Fabrics wholesale collection',
+            name: 'Rahim Fabrics shop collection',
             numberOfItems: shown.length,
           },
         ]}
@@ -70,7 +70,7 @@ export default function Catalogue() {
             {seo.h1}
           </h1>
           <p className="mt-5 max-w-2xl text-white/55">
-            Explore wash & wear, cotton, khaddar and seasonal ranges sold by the thaan. Wholesale prices are shared directly after buyer verification.
+            Explore wash & wear, cotton, khaddar and seasonal ranges with retail prices per metre and wholesale rates per thaan. Add to cart and checkout online.
           </p>
         </div>
       </section>

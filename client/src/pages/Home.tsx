@@ -38,7 +38,7 @@ export default function Home() {
           {
             '@context': 'https://schema.org',
             ...itemListSchema(products.slice(0, 3)),
-            name: 'Featured wholesale fabrics',
+            name: 'Featured fabrics for retail and wholesale',
           },
         ]}
       />
@@ -47,13 +47,13 @@ export default function Home() {
         <div className="mx-auto max-w-[1320px]">
           <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
             <div>
-              <p className="eyebrow">Trade collection</p>
+              <p className="eyebrow">Shop collection</p>
               <h2 className="mt-4 max-w-xl font-display text-4xl font-semibold leading-tight text-emerald-950 md:text-5xl">
-                Fabrics selected for your customers.
+                Fabrics priced for retail — ready for wholesale too.
               </h2>
             </div>
             <Link to="/catalogue" className="flex items-center gap-2 text-sm font-bold text-emerald-900">
-              Explore the full catalogue <ArrowRight size={16} />
+              Browse the shop <ArrowRight size={16} />
             </Link>
           </div>
           <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -72,19 +72,19 @@ export default function Home() {
           />
           <div className="flex items-center px-7 py-16 md:px-16 lg:px-20">
             <div>
-              <p className="eyebrow">Built for wholesale</p>
+              <p className="eyebrow">Retail & wholesale</p>
               <h2 className="mt-4 font-display text-4xl font-semibold text-emerald-950 md:text-5xl">
-                The thaan is our standard.
+                By the metre, or by the thaan.
               </h2>
               <p className="mt-6 max-w-xl leading-8 text-black/55">
-                We understand the real rhythm of fabric trade: consistent lots, accurate colour assortments, dependable packing and direct answers before you buy.
+                Order smaller retail lengths for personal stitching, or full thaans for your shop — same quality fabrics from Azam Market, with clear prices and COD or bank transfer checkout.
               </p>
               <div className="mt-9 grid gap-5 sm:grid-cols-2">
                 {[
-                  [Box, 'Thaan-based inventory', 'Clear packing and suit yield'],
+                  [Scissors, 'Retail by the metre', 'Clear per-metre pricing online'],
+                  [Box, 'Wholesale by the thaan', 'Packing and suit yield shown'],
                   [BadgeCheck, 'Checked quality', 'Trade-ready fabric selection'],
-                  [Scissors, 'Tailor-friendly cuts', 'Consistent length and finish'],
-                  [Truck, 'Pakistan delivery', 'Dispatch for verified dealers'],
+                  [Truck, 'Pakistan delivery', 'COD and bank transfer available'],
                 ].map(([Icon, t, d]) => (
                   <div key={String(t)} className="flex gap-3">
                     <Icon className="mt-1 text-gold-500" size={21} />
@@ -102,16 +102,21 @@ export default function Home() {
       <section className="section bg-emerald-900 text-white">
         <div className="mx-auto flex max-w-[1100px] flex-col items-center text-center">
           <MapPin className="text-gold-400" />
-          <p className="eyebrow mt-5">Wholesale relationships</p>
+          <p className="eyebrow mt-5">Ready to order</p>
           <h2 className="mt-4 font-display text-4xl font-semibold md:text-6xl">
-            From Lahore&apos;s fabric heart, to your shop.
+            Shop online — or register for wholesale.
           </h2>
           <p className="mt-6 max-w-2xl leading-8 text-white/60">
-            Register your business requirement and our wholesale desk will share suitable ranges, availability and trade prices directly.
+            Retail customers can add fabrics to cart and checkout with COD or bank transfer. Dealers can also register for thaan-based wholesale support.
           </p>
-          <Link to="/wholesale" className="btn-primary mt-9">
-            Register as a wholesale buyer <ArrowRight size={17} />
-          </Link>
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <Link to="/catalogue" className="btn-primary">
+              Shop fabrics <ArrowRight size={17} />
+            </Link>
+            <Link to="/wholesale" className="btn-outline border-white/30 text-white hover:bg-white/10">
+              Wholesale registration
+            </Link>
+          </div>
         </div>
       </section>
     </>

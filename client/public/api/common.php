@@ -184,12 +184,85 @@ function productJson(array $row, ?array $images = null): array
         'thaanLength' => $row['thaan_length'],
         'suitsPerThaan' => (int) $row['suits_per_thaan'],
         'stock' => (int) $row['stock'],
+        'stockMeters' => (int) ($row['stock_meters'] ?? 0),
+        'retailPrice' => (float) ($row['retail_price'] ?? 0),
+        'wholesalePrice' => (float) ($row['wholesale_price'] ?? 0),
+        'retailUnit' => (string) ($row['retail_unit'] ?? 'meter'),
+        'minRetailQty' => (int) ($row['min_retail_qty'] ?? 1),
+        'minWholesaleQty' => (int) ($row['min_wholesale_qty'] ?? 1),
         'images' => array_map(static fn (array $image): array => ['url' => $image['url']], $images),
         'description' => $row['description'],
         'featured' => (bool) $row['featured'],
         'createdAt' => $row['created_at'],
         'updatedAt' => $row['updated_at'],
     ];
+}
+
+function bankPaymentDetails(): array
+{
+    return [
+        'accountName' => (string) config('bank_account_name', 'Rahim Fabrics'),
+        'bankName' => (string) config('bank_name', ''),
+        'accountNumber' => (string) config('bank_account_number', ''),
+        'iban' => (string) config('bank_iban', ''),
+    ];
+}
+
+function orderItemJson(array $row): array
+{
+    return [
+        '_id' => (string) $row['id'],
+        'productId' => $row['product_id'] !== null ? (string) $row['product_id'] : null,
+        'productName' => $row['product_name'],
+        'productCode' => $row['product_code'],
+        'unit' => $row['unit'],
+        'qty' => (float) $row['qty'],
+        'unitPrice' => (float) $row['unit_price'],
+        'lineTotal' => (float) $row['line_total'],
+    ];
+}
+
+function orderJson(array $row, ?array $items = null): array
+{
+    if ($items === null) {
+        $statement = db()->prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id');
+        $statement->execute([(int) $row['id']]);
+        $items = $statement->fetchAll();
+    }
+    return [
+        '_id' => (string) $row['id'],
+        'orderNumber' => $row['order_number'],
+        'channel' => $row['channel'],
+        'customerName' => $row['customer_name'],
+        'businessName' => $row['business_name'] ?? '',
+        'phone' => $row['phone'],
+        'email' => $row['email'] ?? '',
+        'city' => $row['city'],
+        'address' => $row['address'],
+        'paymentMethod' => $row['payment_method'],
+        'paymentStatus' => $row['payment_status'],
+        'orderStatus' => $row['order_status'],
+        'subtotal' => (float) $row['subtotal'],
+        'total' => (float) $row['total'],
+        'notes' => $row['notes'] ?? '',
+        'items' => array_map('orderItemJson', $items),
+        'createdAt' => $row['created_at'],
+        'updatedAt' => $row['updated_at'],
+        'bankDetails' => $row['payment_method'] === 'bank_transfer' ? bankPaymentDetails() : null,
+    ];
+}
+
+function generateOrderNumber(PDO $pdo): string
+{
+    for ($attempt = 0; $attempt < 8; $attempt++) {
+        $candidate = 'RF' . date('ymd') . strtoupper(bin2hex(random_bytes(3)));
+        $check = $pdo->prepare('SELECT id FROM orders WHERE order_number = ? LIMIT 1');
+        $check->execute([$candidate]);
+        if (!$check->fetch()) {
+            return $candidate;
+        }
+    }
+    throw new RuntimeException('Could not generate a unique order number.');
 }
 
 function categoryJson(array $row): array
