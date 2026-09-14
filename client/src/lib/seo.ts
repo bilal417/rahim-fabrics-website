@@ -1,4 +1,5 @@
 import type { Product } from '../types';
+import { BRAND_LINE, SOCIAL } from './data';
 
 export const SITE_URL = 'https://rahimfabrics.site';
 export const SITE_NAME = 'Rahim Fabrics';
@@ -12,6 +13,7 @@ export const organizationSchema = {
   '@type': 'Organization',
   '@id': `${SITE_URL}/#organization`,
   name: SITE_NAME,
+  alternateName: BRAND_LINE,
   url: SITE_URL,
   logo: {
     '@type': 'ImageObject',
@@ -19,24 +21,30 @@ export const organizationSchema = {
   },
   email: BUSINESS_EMAIL,
   telephone: BUSINESS_PHONE,
-  sameAs: [`https://wa.me/${BUSINESS_PHONE.replace('+', '')}`],
+  sameAs: [
+    `https://wa.me/${BUSINESS_PHONE.replace('+', '')}`,
+    SOCIAL.facebook,
+    ...(SOCIAL.instagram ? [SOCIAL.instagram] : []),
+  ],
 };
 
 export const localBusinessSchema = {
   '@type': 'LocalBusiness',
   '@id': `${SITE_URL}/#localbusiness`,
   name: SITE_NAME,
+  alternateName: BRAND_LINE,
   url: SITE_URL,
   image: DEFAULT_IMAGE,
   logo: DEFAULT_IMAGE,
   description:
-    'Premium gents fabrics for retail and wholesale from Azam Market, Lahore. Shop by the metre or buy by the thaan — wash & wear, cotton, khaddar and seasonal ranges.',
+    'Premium gents fabrics for retail and wholesale from New Azam Cloth Market, Lahore. Shop by the metre or buy by the thaan.',
   telephone: BUSINESS_PHONE,
   email: BUSINESS_EMAIL,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Azam Market',
+    streetAddress: 'G Ground Floor, New Azam Cloth Market, 41/A, Mohalla Buzurg Shah Nawan Mohalla, Walled City of Lahore',
     addressLocality: 'Lahore',
+    postalCode: '54000',
     addressRegion: 'Punjab',
     addressCountry: 'PK',
   },
@@ -101,7 +109,7 @@ export function websiteSchema() {
     url: SITE_URL,
     name: SITE_NAME,
     description:
-      'Shop premium gents fabrics online from Azam Market Lahore — retail by the metre and wholesale by the thaan.',
+      'Shop premium gents fabrics online from New Azam Cloth Market Lahore — retail by the metre and wholesale by the thaan.',
     publisher: { '@id': `${SITE_URL}/#organization` },
     inLanguage: 'en-PK',
   };
@@ -187,9 +195,9 @@ export const pageSeo = {
     h1: 'Gents Fabrics for Retail & Wholesale in Lahore',
     title: 'Gents Fabrics Lahore | Retail & Wholesale | Rahim Fabrics',
     description:
-      'Shop premium gents fabrics in Lahore from Rahim Fabrics, Azam Market. Buy by the metre for retail orders or by the thaan for wholesale — wash & wear, cotton, khaddar and more.',
+      'Shop premium gents fabrics in Lahore from Rahim Fabrics at New Azam Cloth Market. Buy by the metre for retail orders or by the thaan for wholesale.',
     keywords:
-      'gents fabrics Lahore, buy fabric online Lahore, fabric retail Lahore, gents fabrics wholesale Lahore, Azam Market fabric shop, wash and wear fabric Lahore, Rahim Fabrics',
+      'gents fabrics Lahore, buy fabric online Lahore, fabric retail Lahore, New Azam Cloth Market, gents fabrics wholesale Lahore, Rahim Fabrics',
     path: '/',
   },
   catalogue: {
@@ -197,9 +205,9 @@ export const pageSeo = {
     h1: 'Shop Fabrics Online in Lahore',
     title: 'Shop Fabrics Online Lahore | Retail & Wholesale | Rahim Fabrics',
     description:
-      'Browse wash & wear, cotton, khaddar and seasonal fabrics online. Clear retail prices per metre plus wholesale thaan rates from Rahim Fabrics, Azam Market Lahore.',
+      'Browse wash & wear, cotton, khaddar and seasonal fabrics online. Clear retail prices per metre plus wholesale thaan rates from Rahim Fabrics, New Azam Cloth Market Lahore.',
     keywords:
-      'buy fabric online Lahore, fabric shop Lahore, wash and wear fabric price, cotton fabric retail Lahore, wholesale fabric collection, Azam Market fabric catalogue',
+      'buy fabric online Lahore, fabric shop Lahore, wash and wear fabric price, New Azam Cloth Market, wholesale fabric collection',
     path: '/catalogue',
   },
   wholesale: {
@@ -207,19 +215,19 @@ export const pageSeo = {
     h1: 'Register as a Fabric Wholesale Buyer in Lahore',
     title: 'Fabric Wholesale Buyer Registration Lahore | Rahim Fabrics',
     description:
-      'Register as a fabric wholesale buyer in Lahore with Rahim Fabrics. Get trade prices, thaan availability and nationwide dispatch support from Azam Market.',
+      'Register as a fabric wholesale buyer in Lahore with Rahim Fabrics. Get trade prices, thaan availability and nationwide dispatch support from New Azam Cloth Market.',
     keywords:
-      'fabric wholesale buyer Lahore, wholesale fabric dealer registration, thaan fabric supplier Pakistan, Azam Market wholesale inquiry, become fabric wholesaler buyer',
+      'fabric wholesale buyer Lahore, wholesale fabric dealer registration, thaan fabric supplier Pakistan, New Azam Cloth Market wholesale',
     path: '/wholesale',
   },
   about: {
-    primaryKeyword: 'Azam Market fabric shop',
-    h1: 'Azam Market Fabric Shop for Retail & Wholesale',
-    title: 'Azam Market Fabric Shop Lahore | About Rahim Fabrics',
+    primaryKeyword: 'New Azam Cloth Market fabric shop',
+    h1: 'New Azam Cloth Market Fabric Shop for Retail & Wholesale',
+    title: 'New Azam Cloth Market Fabric Shop Lahore | About Rahim Fabrics',
     description:
-      'Rahim Fabrics is an Azam Market fabric shop in Lahore serving retail customers by the metre and wholesale buyers by the thaan across Pakistan.',
+      'Rahim Fabrics by Safeer Naseer Fabrics is a fabric shop at New Azam Cloth Market, Lahore — serving retail customers by the metre and wholesale buyers by the thaan.',
     keywords:
-      'Azam Market fabric shop, Lahore gents fabric supplier, fabric retail Lahore, fabric wholesaler Azam Market, about Rahim Fabrics',
+      'New Azam Cloth Market fabric shop, Lahore gents fabric supplier, fabric retail Lahore, about Rahim Fabrics',
     path: '/about',
   },
 } as const;
@@ -232,7 +240,7 @@ export function productPageSeo(product: Product) {
     primaryKeyword,
     h1: product.name,
     title: `${product.name} | Buy Online Lahore | Rahim Fabrics`,
-    description: `Buy ${product.name} online from Rahim Fabrics, Azam Market Lahore.${retail} ${product.description} Also available wholesale by the thaan. Colours: ${product.colors.slice(0, 4).join(', ')}.`,
+    description: `Buy ${product.name} online from Rahim Fabrics, New Azam Cloth Market Lahore.${retail} ${product.description} Also available wholesale by the thaan. Colours: ${product.colors.slice(0, 4).join(', ')}.`,
     keywords: `${primaryKeyword}, ${product.category} fabric Lahore, ${product.fabricType}, ${product.code}, buy fabric online Lahore, wholesale thaan`,
     path,
   };

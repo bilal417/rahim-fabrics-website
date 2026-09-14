@@ -77,7 +77,7 @@ export default function Wholesale() {
             <img
               src="/images/showroom-hero.png"
               className="absolute inset-0 h-full w-full object-cover opacity-25"
-              alt="Rahim Fabrics wholesale showroom Azam Market Lahore"
+              alt="Rahim Fabrics wholesale showroom New Azam Cloth Market Lahore"
             />
             <div className="relative">
               <Breadcrumbs items={crumbs} tone="dark" />
@@ -86,7 +86,7 @@ export default function Wholesale() {
                 {seo.h1}
               </h1>
               <p className="mt-6 max-w-md leading-8 text-white/60">
-                Tell us what your customers buy. Our Azam Market wholesale desk will contact you with suitable lots, current thaan availability and trade prices.
+                Tell us what your customers buy. Our New Azam Cloth Market wholesale desk will contact you with suitable lots, current thaan availability and trade prices.
               </p>
               <ul className="mt-10 space-y-4">
                 {[

@@ -57,9 +57,19 @@ export default function Home() {
             </Link>
           </div>
           <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {products.slice(0, 3).map((p) => (
-              <ProductCard key={p.code} product={p} />
-            ))}
+            {products.length ? (
+              products.slice(0, 3).map((p) => <ProductCard key={p.code} product={p} />)
+            ) : (
+              <div className="rounded-sm bg-white p-10 text-center shadow-soft md:col-span-2 lg:col-span-3">
+                <p className="font-display text-2xl text-emerald-950">New stock is being prepared</p>
+                <p className="mt-3 text-sm text-black/50">
+                  Catalogue products will appear here soon. Meanwhile, WhatsApp us or register for wholesale.
+                </p>
+                <Link to="/wholesale" className="btn-dark mt-6 inline-flex">
+                  Wholesale registration
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -68,7 +78,7 @@ export default function Home() {
           <div
             className="min-h-[480px] bg-[url('/images/showroom-hero.png')] bg-cover bg-left"
             role="img"
-            aria-label="Rahim Fabrics wholesale showroom in Azam Market Lahore"
+            aria-label="Rahim Fabrics showroom at New Azam Cloth Market Lahore"
           />
           <div className="flex items-center px-7 py-16 md:px-16 lg:px-20">
             <div>
@@ -77,7 +87,7 @@ export default function Home() {
                 By the metre, or by the thaan.
               </h2>
               <p className="mt-6 max-w-xl leading-8 text-black/55">
-                Order smaller retail lengths for personal stitching, or full thaans for your shop — same quality fabrics from Azam Market, with clear prices and COD or bank transfer checkout.
+                Order smaller retail lengths for personal stitching, or full thaans for your shop — same quality fabrics from New Azam Cloth Market, with clear prices and COD or bank transfer checkout.
               </p>
               <div className="mt-9 grid gap-5 sm:grid-cols-2">
                 {[

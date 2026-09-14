@@ -35,18 +35,18 @@ export default function About() {
         <img
           src="/images/showroom-hero.png"
           className="absolute inset-0 h-full w-full object-cover opacity-25"
-          alt="Rahim Fabrics showroom in Azam Market Lahore"
+          alt="Rahim Fabrics showroom at New Azam Cloth Market Lahore"
         />
         <div className="relative max-w-3xl">
           <div className="flex justify-center">
             <Breadcrumbs items={crumbs} tone="dark" />
           </div>
-          <p className="eyebrow">Our story · Azam Market</p>
+          <p className="eyebrow">Our story · New Azam Cloth Market</p>
           <h1 className="mt-5 font-display text-5xl font-semibold md:text-7xl">
             {seo.h1}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl leading-8 text-white/60">
-            Rahim Fabrics is an Azam Market fabric shop serving retail customers by the metre and wholesale buyers by the thaan across Pakistan.
+            Rahim Fabrics by Safeer Naseer Fabrics serves retail customers by the metre and wholesale buyers by the thaan from New Azam Cloth Market, Lahore.
           </p>
         </div>
       </section>
@@ -56,7 +56,7 @@ export default function About() {
             [
               MapPin,
               'Market rooted',
-              'We work at the heart of Lahore’s fabric trade in Azam Market — for personal orders and shop stock alike.',
+              'G Ground Floor, New Azam Cloth Market, Lahore — for personal orders and shop stock alike.',
             ],
             [
               BadgeCheck,

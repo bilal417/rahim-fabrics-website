@@ -48,12 +48,12 @@ export default function HeroSlider() {
 
       <div className="relative z-20 mx-auto flex min-h-[720px] w-full max-w-[1440px] items-center px-5 py-20 md:px-10 lg:min-h-[760px] lg:px-16">
         <div className="max-w-2xl reveal">
-          <p className="eyebrow">Azam Market · Lahore</p>
+          <p className="eyebrow">New Azam Cloth Market · Lahore</p>
           <h1 className="mt-6 max-w-full font-display text-[clamp(2.25rem,10vw,4.5rem)] font-semibold leading-[1.04]">
             Gents Fabrics <span className="block italic text-gold-400 sm:inline">for Retail</span>{' '}& Wholesale
           </h1>
           <p className="mt-7 max-w-lg text-lg leading-8 text-white/75">
-            Shop by the metre for personal orders, or buy by the thaan for your business — quality fabrics from Azam Market, Lahore.
+            Shop by the metre for personal orders, or buy by the thaan for your business — quality fabrics from New Azam Cloth Market, Lahore.
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Link to="/catalogue" className="btn-primary">Shop fabrics <ArrowRight size={17} /></Link>

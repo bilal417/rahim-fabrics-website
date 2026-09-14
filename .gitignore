@@ -11,3 +11,4 @@ uploads/products/*
 client/public/api/config.local.php
 client/public/uploads/products/*
 !client/public/uploads/products/.htaccess
+.venv

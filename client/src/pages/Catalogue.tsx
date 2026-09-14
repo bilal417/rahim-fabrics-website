@@ -65,7 +65,7 @@ export default function Catalogue() {
       />
       <section className="bg-emerald-950 px-5 py-20 text-white md:px-10">
         <div className="mx-auto max-w-[1320px]">
-          <p className="eyebrow">Current stock · Azam Market</p>
+          <p className="eyebrow">Current stock · New Azam Cloth Market</p>
           <h1 className="mt-4 font-display text-5xl font-semibold md:text-6xl">
             {seo.h1}
           </h1>
@@ -109,7 +109,7 @@ export default function Catalogue() {
           </div>
           <div className="mt-10 flex items-center justify-between">
             <p className="text-sm text-black/45">Showing {shown.length} fabric ranges</p>
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-900">Sold by thaan</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-900">Retail & wholesale</p>
           </div>
           <div className="mt-8 grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
             {shown.map((p) => (
@@ -117,7 +117,9 @@ export default function Catalogue() {
             ))}
           </div>
           {!shown.length && (
-            <div className="py-20 text-center text-black/45">No fabrics match your search.</div>
+            <div className="py-20 text-center text-black/45">
+              {items.length ? 'No fabrics match your search.' : 'No products in the catalogue yet. New stock will appear here soon.'}
+            </div>
           )}
         </div>
       </section>

@@ -4,142 +4,26 @@ export const WHATSAPP = import.meta.env.VITE_WHATSAPP_NUMBER || '923219454085';
 export const whatsappUrl = (message: string) =>
   `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
 
-export const products: Product[] = [
-  {
-    _id: 'rf-ww-001',
-    slug: 'royal-premium-wash-wear',
-    name: 'Royal Premium Wash & Wear',
-    code: 'RF-WW-001',
-    category: 'Wash & Wear',
-    fabricType: 'Premium Wash & Wear',
-    colors: ['Emerald', 'Navy Blue', 'Charcoal', 'Cream'],
-    thaanLength: '20 metres',
-    suitsPerThaan: 5,
-    stock: 24,
-    stockMeters: 480,
-    retailPrice: 1850,
-    wholesalePrice: 32000,
-    retailUnit: 'meter',
-    minRetailQty: 2,
-    minWholesaleQty: 1,
-    images: ['/images/fabric-collection.png'],
-    description:
-      'A refined all-season wash & wear with a clean fall, smooth handle and dependable colour performance for premium menswear.',
-    featured: true,
-    tilePosition: '0% 0%',
-  },
-  {
-    _id: 'rf-ct-004',
-    slug: 'signature-cotton',
-    name: 'Signature Cotton Collection',
-    code: 'RF-CT-004',
-    category: 'Cotton',
-    fabricType: 'Combed Cotton',
-    colors: ['White', 'Ivory', 'Sand', 'Black'],
-    thaanLength: '18 metres',
-    suitsPerThaan: 5,
-    stock: 17,
-    stockMeters: 306,
-    retailPrice: 1450,
-    wholesalePrice: 24000,
-    retailUnit: 'meter',
-    minRetailQty: 2,
-    minWholesaleQty: 1,
-    images: ['/images/fabric-collection.png'],
-    description:
-      'Breathable combed cotton with an elegant natural finish, selected for summer retail ranges and everyday comfort.',
-    featured: true,
-    tilePosition: '50% 100%',
-  },
-  {
-    _id: 'rf-kh-012',
-    slug: 'heritage-khaddar',
-    name: 'Heritage Khaddar',
-    code: 'RF-KH-012',
-    category: 'Khaddar',
-    fabricType: 'Fine Khaddar',
-    colors: ['Brown', 'Charcoal', 'Olive', 'Navy Blue'],
-    thaanLength: '16 metres',
-    suitsPerThaan: 4,
-    stock: 11,
-    stockMeters: 176,
-    retailPrice: 1650,
-    wholesalePrice: 22000,
-    retailUnit: 'meter',
-    minRetailQty: 2,
-    minWholesaleQty: 1,
-    images: ['/images/fabric-collection.png'],
-    description:
-      'Warm, richly textured fine khaddar developed for winter collections with a premium traditional character.',
-    featured: true,
-    tilePosition: '50% 0%',
-  },
-  {
-    _id: 'rf-sm-008',
-    slug: 'summer-breeze',
-    name: 'Summer Breeze',
-    code: 'RF-SM-008',
-    category: 'Summer',
-    fabricType: 'Lightweight Blended',
-    colors: ['Cream', 'Ice Blue', 'Light Grey', 'White'],
-    thaanLength: '20 metres',
-    suitsPerThaan: 5,
-    stock: 31,
-    stockMeters: 620,
-    retailPrice: 1250,
-    wholesalePrice: 21000,
-    retailUnit: 'meter',
-    minRetailQty: 2,
-    minWholesaleQty: 1,
-    images: ['/images/fabric-collection.png'],
-    description:
-      'A lightweight summer blend with airflow, softness and a crisp finish made for high-turnover warm-weather ranges.',
-    tilePosition: '0% 100%',
-  },
-  {
-    _id: 'rf-wt-016',
-    slug: 'winter-regent',
-    name: 'Winter Regent',
-    code: 'RF-WT-016',
-    category: 'Winter',
-    fabricType: 'Warm Blended',
-    colors: ['Black', 'Coffee', 'Charcoal', 'Bottle Green'],
-    thaanLength: '16 metres',
-    suitsPerThaan: 4,
-    stock: 8,
-    stockMeters: 128,
-    retailPrice: 1750,
-    wholesalePrice: 23000,
-    retailUnit: 'meter',
-    minRetailQty: 2,
-    minWholesaleQty: 1,
-    images: ['/images/fabric-collection.png'],
-    description:
-      'Dense winter fabric with a soft brushed touch and stately drape for elevated seasonal menswear.',
-    tilePosition: '100% 100%',
-  },
-  {
-    _id: 'rf-ww-021',
-    slug: 'executive-wash-wear',
-    name: 'Executive Wash & Wear',
-    code: 'RF-WW-021',
-    category: 'Wash & Wear',
-    fabricType: 'Tropical Wash & Wear',
-    colors: ['Navy Blue', 'Black', 'Stone', 'Emerald'],
-    thaanLength: '20 metres',
-    suitsPerThaan: 5,
-    stock: 19,
-    stockMeters: 380,
-    retailPrice: 1550,
-    wholesalePrice: 28000,
-    retailUnit: 'meter',
-    minRetailQty: 2,
-    minWholesaleQty: 1,
-    images: ['/images/fabric-collection.png'],
-    description:
-      'A polished tropical wash & wear engineered for easy tailoring, strong recovery and year-round dealer demand.',
-    tilePosition: '100% 0%',
-  },
-];
+/** Display address used in header, footer, and page copy */
+export const ADDRESS_SHORT = 'G Ground Floor, New Azam Cloth Market, Lahore';
+
+/** Full legal / maps address */
+export const ADDRESS_FULL =
+  'Rahim Fabrics by Safeer Naseer Fabrics, G Ground Floor, New Azam Cloth Market, 41/A, Mohalla Buzurg Shah Nawan Mohalla, Walled City of Lahore, Lahore 54000, Pakistan';
+
+export const BRAND_LINE = 'Rahim Fabrics by Safeer Naseer Fabrics';
+
+export const SOCIAL = {
+  facebook: 'https://www.facebook.com/profile.php?id=61594455503016',
+  /** Paste Instagram profile URL here when ready */
+  instagram: '' as string,
+};
+
+export const PHONE_DISPLAY = '+92 321 9454085';
+export const PHONE_TEL = '+923219454085';
+export const EMAIL = 'info@rahimfabrics.site';
+
+/** Seed catalogue — empty until admin adds live products */
+export const products: Product[] = [];
 
 export const categories = ['All Fabrics', 'Wash & Wear', 'Cotton', 'Khaddar', 'Summer', 'Winter'];

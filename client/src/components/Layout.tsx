@@ -1,8 +1,17 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Mail, MapPin, Menu, MessageCircle, Phone, ShoppingBag, X } from 'lucide-react';
+import { Facebook, Instagram, Mail, MapPin, Menu, MessageCircle, Phone, ShoppingBag, X } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { whatsappUrl } from '../lib/data';
+import {
+  ADDRESS_FULL,
+  ADDRESS_SHORT,
+  BRAND_LINE,
+  EMAIL,
+  PHONE_DISPLAY,
+  PHONE_TEL,
+  SOCIAL,
+  whatsappUrl,
+} from '../lib/data';
 
 const links = [
   ['/', 'Home'],
@@ -19,18 +28,17 @@ export default function Layout() {
   return (
     <div className="min-h-screen overflow-x-hidden">
       <div className="bg-emerald-950 px-5 py-2.5 text-white">
-        <div className="mx-auto flex max-w-[1320px] items-center justify-center text-[10px] font-bold uppercase tracking-[.16em] text-white/75 sm:justify-between sm:text-[11px]">
-          <span className="flex items-center gap-2">
-            <MapPin size={13} className="text-gold-400" /> Azam Market, Lahore
+        <div className="mx-auto flex max-w-[1320px] items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-[.16em] text-white/75 sm:justify-between sm:text-[11px]">
+          <span className="flex min-w-0 items-center gap-2" title={ADDRESS_FULL}>
+            <MapPin size={13} className="shrink-0 text-gold-400" />
+            <span className="truncate">{ADDRESS_SHORT}</span>
           </span>
           <span className="hidden md:block">Retail & wholesale · Delivery across Pakistan</span>
-          <div className="hidden items-center gap-5 sm:flex">
-            <a href="tel:+923219454085" className="transition hover:text-gold-400">
-              +92 321 9454085
+          <div className="hidden items-center gap-4 sm:flex">
+            <a href={`tel:${PHONE_TEL}`} className="transition hover:text-gold-400">
+              {PHONE_DISPLAY}
             </a>
-            <a href="mailto:info@rahimfabrics.site" className="hidden transition hover:text-gold-400 lg:block">
-              info@rahimfabrics.site
-            </a>
+            <SocialLinks className="hidden lg:flex" />
           </div>
         </div>
       </div>
@@ -44,7 +52,7 @@ export default function Layout() {
             <img
               src="/logo.webp"
               alt="Rahim Fabrics — Tradition in every thread"
-              className="h-[70px] w-[105px] object-contain transition duration-300 group-hover:scale-[1.03] md:h-[84px] md:w-[126px]"
+              className="site-logo h-[70px] w-[105px] object-contain transition duration-300 group-hover:scale-[1.03] md:h-[84px] md:w-[126px]"
             />
           </Link>
           <nav aria-label="Main navigation" className="hidden items-center gap-1 lg:flex">
@@ -109,10 +117,11 @@ export default function Layout() {
                   <span className="text-gold-500">→</span>
                 </NavLink>
               ))}
+              <SocialLinks className="mt-5" tone="light" />
               <Link
                 to="/cart"
                 onClick={() => setOpen(false)}
-                className="mt-5 flex items-center justify-center gap-2 rounded-full bg-emerald-950 px-5 py-3.5 text-sm font-bold text-white"
+                className="mt-4 flex items-center justify-center gap-2 rounded-full bg-emerald-950 px-5 py-3.5 text-sm font-bold text-white"
               >
                 <ShoppingBag size={17} /> Cart ({cartCount})
               </Link>
@@ -126,24 +135,31 @@ export default function Layout() {
       <footer className="bg-emerald-950 px-5 pb-8 pt-16 text-white md:px-10 lg:px-16">
         <div className="mx-auto grid max-w-[1320px] gap-12 border-b border-white/10 pb-14 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div className="font-display text-3xl text-white">Rahim Fabrics</div>
-            <p className="mt-4 max-w-md text-sm leading-7 text-white/55">
-              Premium gents fabrics for retail customers and wholesale buyers — sold by the metre and by the thaan from Azam Market, Lahore.
+            <img
+              src="/logo.webp"
+              alt="Rahim Fabrics"
+              className="site-logo h-16 w-auto object-contain"
+            />
+            <p className="mt-4 text-sm font-semibold text-gold-400">{BRAND_LINE}</p>
+            <p className="mt-3 max-w-md text-sm leading-7 text-white/55">
+              Premium gents fabrics for retail customers and wholesale buyers — sold by the metre and by the thaan from New Azam Cloth Market, Lahore.
             </p>
+            <SocialLinks className="mt-6" />
           </div>
           <div>
             <div className="eyebrow">Visit our shop</div>
-            <p className="mt-4 flex gap-3 text-sm leading-6 text-white/65">
-              <MapPin size={18} className="shrink-0 text-gold-400" /> Azam Market, Lahore, Pakistan
+            <p className="mt-4 flex gap-3 text-sm leading-6 text-white/65" title={ADDRESS_FULL}>
+              <MapPin size={18} className="mt-0.5 shrink-0 text-gold-400" />
+              <span>{ADDRESS_SHORT}</span>
             </p>
           </div>
           <div>
             <div className="eyebrow">Contact</div>
-            <a className="mt-4 flex gap-3 text-sm text-white/65" href="tel:+923219454085">
-              <Phone size={17} className="text-gold-400" /> +92 321 9454085
+            <a className="mt-4 flex gap-3 text-sm text-white/65" href={`tel:${PHONE_TEL}`}>
+              <Phone size={17} className="text-gold-400" /> {PHONE_DISPLAY}
             </a>
-            <a className="mt-3 flex gap-3 text-sm text-white/65" href="mailto:info@rahimfabrics.site">
-              <Mail size={17} className="text-gold-400" /> info@rahimfabrics.site
+            <a className="mt-3 flex gap-3 text-sm text-white/65" href={`mailto:${EMAIL}`}>
+              <Mail size={17} className="text-gold-400" /> {EMAIL}
             </a>
           </div>
         </div>
@@ -161,6 +177,38 @@ export default function Layout() {
       >
         <MessageCircle />
       </a>
+    </div>
+  );
+}
+
+function SocialLinks({ className = '', tone = 'dark' }: { className?: string; tone?: 'dark' | 'light' }) {
+  const chip =
+    tone === 'dark'
+      ? 'border-white/15 bg-white/5 text-white hover:border-gold-400 hover:text-gold-400'
+      : 'border-emerald-950/10 bg-white text-emerald-950 hover:border-gold-500 hover:text-gold-600';
+
+  return (
+    <div className={`flex items-center gap-3 ${className}`}>
+      <a
+        href={SOCIAL.facebook}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Rahim Fabrics on Facebook"
+        className={`grid h-10 w-10 place-items-center rounded-full border transition ${chip}`}
+      >
+        <Facebook size={16} />
+      </a>
+      {SOCIAL.instagram ? (
+        <a
+          href={SOCIAL.instagram}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Rahim Fabrics on Instagram"
+          className={`grid h-10 w-10 place-items-center rounded-full border transition ${chip}`}
+        >
+          <Instagram size={16} />
+        </a>
+      ) : null}
     </div>
   );
 }
