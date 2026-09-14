@@ -34,8 +34,8 @@ export default function Layout() {
             href={MAPS_URL}
             target="_blank"
             rel="noreferrer"
-            title={ADDRESS_FULL}
-            className="flex min-w-0 items-center gap-2 transition hover:text-gold-400"
+            title={`Open in Google Maps — ${ADDRESS_FULL}`}
+            className="flex min-w-0 items-center gap-2 underline decoration-white/25 underline-offset-4 transition hover:text-gold-400 hover:decoration-gold-400"
           >
             <MapPin size={13} className="shrink-0 text-gold-400" />
             <span className="truncate">{ADDRESS_SHORT}</span>
@@ -50,16 +50,16 @@ export default function Layout() {
         </div>
       </div>
       <header className="sticky top-0 z-50 border-b border-emerald-950/10 bg-[#fbf8f2]/95 shadow-[0_8px_30px_rgba(4,54,45,.06)] backdrop-blur-xl">
-        <div className="mx-auto flex min-h-[88px] max-w-[1320px] items-center justify-between gap-8 px-5 md:min-h-[98px] md:px-10">
+        <div className="mx-auto flex min-h-[100px] max-w-[1320px] items-center justify-between gap-6 pr-5 md:min-h-[112px] md:pr-10">
           <Link
             to="/"
             aria-label="Rahim Fabrics home"
-            className="group shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+            className="group -ml-1 shrink-0 rounded-sm pl-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
           >
             <img
               src="/logo.webp"
               alt="Rahim Fabrics — Tradition in every thread"
-              className="site-logo h-[70px] w-[105px] object-contain transition duration-300 group-hover:scale-[1.03] md:h-[84px] md:w-[126px]"
+              className="site-logo h-[92px] w-[138px] object-contain object-left transition duration-300 group-hover:scale-[1.03] md:h-[110px] md:w-[165px]"
             />
           </Link>
           <nav aria-label="Main navigation" className="hidden items-center gap-1 lg:flex">
@@ -145,7 +145,7 @@ export default function Layout() {
             <img
               src="/logo.webp"
               alt="Rahim Fabrics"
-              className="site-logo h-16 w-auto object-contain"
+              className="site-logo h-20 w-auto object-contain object-left md:h-24"
             />
             <p className="mt-4 text-sm font-semibold text-gold-400">{BRAND_LINE}</p>
             <p className="mt-3 max-w-md text-sm leading-7 text-white/55">
@@ -159,8 +159,8 @@ export default function Layout() {
               href={MAPS_URL}
               target="_blank"
               rel="noreferrer"
-              title={ADDRESS_FULL}
-              className="mt-4 flex gap-3 text-sm leading-6 text-white/65 transition hover:text-gold-400"
+              title={`Open in Google Maps — ${ADDRESS_FULL}`}
+              className="mt-4 flex gap-3 text-sm leading-6 text-white/65 underline decoration-white/20 underline-offset-4 transition hover:text-gold-400 hover:decoration-gold-400"
             >
               <MapPin size={18} className="mt-0.5 shrink-0 text-gold-400" />
               <span>{ADDRESS_SHORT}</span>
