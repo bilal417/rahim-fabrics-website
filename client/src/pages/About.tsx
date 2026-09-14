@@ -56,7 +56,7 @@ export default function About() {
             [
               MapPin,
               'Market rooted',
-              'G Ground Floor, New Azam Cloth Market, Lahore — for personal orders and shop stock alike.',
+              'G 41/A Ground Floor New Azam Cloth Market Lahore — for personal orders and shop stock alike.',
             ],
             [
               BadgeCheck,

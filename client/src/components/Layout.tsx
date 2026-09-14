@@ -7,6 +7,7 @@ import {
   ADDRESS_SHORT,
   BRAND_LINE,
   EMAIL,
+  MAPS_URL,
   PHONE_DISPLAY,
   PHONE_TEL,
   SOCIAL,
@@ -29,10 +30,16 @@ export default function Layout() {
     <div className="min-h-screen overflow-x-hidden">
       <div className="bg-emerald-950 px-5 py-2.5 text-white">
         <div className="mx-auto flex max-w-[1320px] items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-[.16em] text-white/75 sm:justify-between sm:text-[11px]">
-          <span className="flex min-w-0 items-center gap-2" title={ADDRESS_FULL}>
+          <a
+            href={MAPS_URL}
+            target="_blank"
+            rel="noreferrer"
+            title={ADDRESS_FULL}
+            className="flex min-w-0 items-center gap-2 transition hover:text-gold-400"
+          >
             <MapPin size={13} className="shrink-0 text-gold-400" />
             <span className="truncate">{ADDRESS_SHORT}</span>
-          </span>
+          </a>
           <span className="hidden md:block">Retail & wholesale · Delivery across Pakistan</span>
           <div className="hidden items-center gap-4 sm:flex">
             <a href={`tel:${PHONE_TEL}`} className="transition hover:text-gold-400">
@@ -148,10 +155,16 @@ export default function Layout() {
           </div>
           <div>
             <div className="eyebrow">Visit our shop</div>
-            <p className="mt-4 flex gap-3 text-sm leading-6 text-white/65" title={ADDRESS_FULL}>
+            <a
+              href={MAPS_URL}
+              target="_blank"
+              rel="noreferrer"
+              title={ADDRESS_FULL}
+              className="mt-4 flex gap-3 text-sm leading-6 text-white/65 transition hover:text-gold-400"
+            >
               <MapPin size={18} className="mt-0.5 shrink-0 text-gold-400" />
               <span>{ADDRESS_SHORT}</span>
-            </p>
+            </a>
           </div>
           <div>
             <div className="eyebrow">Contact</div>

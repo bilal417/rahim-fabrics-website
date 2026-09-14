@@ -42,7 +42,7 @@ export const localBusinessSchema = {
   email: BUSINESS_EMAIL,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'G Ground Floor, New Azam Cloth Market, 41/A, Mohalla Buzurg Shah Nawan Mohalla, Walled City of Lahore',
+    streetAddress: 'G 41/A Ground Floor, New Azam Cloth Market, Mohalla Buzurg Shah Nawan Mohalla, Walled City of Lahore',
     addressLocality: 'Lahore',
     postalCode: '54000',
     addressRegion: 'Punjab',
@@ -50,8 +50,8 @@ export const localBusinessSchema = {
   },
   geo: {
     '@type': 'GeoCoordinates',
-    latitude: 31.582045,
-    longitude: 74.329376,
+    latitude: 31.585044,
+    longitude: 74.322454,
   },
   areaServed: {
     '@type': 'Country',
