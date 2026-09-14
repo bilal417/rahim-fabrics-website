@@ -50,18 +50,19 @@ export default function Layout() {
         </div>
       </div>
       <header className="sticky top-0 z-50 border-b border-emerald-950/10 bg-[#fbf8f2]/95 shadow-[0_8px_30px_rgba(4,54,45,.06)] backdrop-blur-xl">
-        <div className="mx-auto flex min-h-[100px] max-w-[1320px] items-center justify-between gap-6 pr-5 md:min-h-[112px] md:pr-10">
+        <div className="mx-auto flex min-h-[108px] w-full max-w-[1320px] items-center justify-between gap-4 md:min-h-[120px]">
           <Link
             to="/"
             aria-label="Rahim Fabrics home"
-            className="group -ml-1 shrink-0 rounded-sm pl-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+            className="group flex shrink-0 items-center self-stretch pl-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 md:pl-4"
           >
             <img
-              src="/logo.webp"
+              src="/logo.webp?v=3"
               alt="Rahim Fabrics — Tradition in every thread"
-              className="site-logo h-[92px] w-[138px] object-contain object-left transition duration-300 group-hover:scale-[1.03] md:h-[110px] md:w-[165px]"
+              className="site-logo h-[96px] w-auto max-w-[160px] object-contain object-left transition duration-300 group-hover:scale-[1.03] md:h-[112px] md:max-w-[190px]"
             />
           </Link>
+          <div className="flex flex-1 items-center justify-end gap-3 pr-4 md:pr-8 lg:justify-between lg:pl-6">
           <nav aria-label="Main navigation" className="hidden items-center gap-1 lg:flex">
             {links.map(([to, label]) => (
               <NavLink
@@ -106,6 +107,7 @@ export default function Layout() {
               {open ? <X size={21} /> : <Menu size={21} />}
             </button>
           </div>
+          </div>
         </div>
         {open && (
           <nav aria-label="Mobile navigation" className="border-t border-emerald-950/10 bg-cream px-5 pb-6 pt-3 shadow-xl lg:hidden">
@@ -143,7 +145,7 @@ export default function Layout() {
         <div className="mx-auto grid max-w-[1320px] gap-12 border-b border-white/10 pb-14 md:grid-cols-4">
           <div className="md:col-span-2">
             <img
-              src="/logo.webp"
+              src="/logo.webp?v=3"
               alt="Rahim Fabrics"
               className="site-logo h-20 w-auto object-contain object-left md:h-24"
             />
