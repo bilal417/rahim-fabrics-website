@@ -50,16 +50,16 @@ export default function Layout() {
         </div>
       </div>
       <header className="sticky top-0 z-50 border-b border-emerald-950/10 bg-[#fbf8f2]/95 shadow-[0_8px_30px_rgba(4,54,45,.06)] backdrop-blur-xl">
-        <div className="mx-auto flex min-h-[108px] w-full max-w-[1320px] items-center justify-between gap-4 md:min-h-[120px]">
+        <div className="mx-auto flex min-h-[120px] w-full max-w-[1320px] items-center justify-between gap-4 md:min-h-[132px]">
           <Link
             to="/"
             aria-label="Rahim Fabrics home"
-            className="group flex shrink-0 items-center self-stretch pl-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 md:pl-4"
+            className="group flex shrink-0 items-center self-stretch py-3 pl-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 md:py-4 md:pl-4"
           >
             <img
-              src="/logo.webp?v=3"
+              src="/logo.webp?v=4"
               alt="Rahim Fabrics — Tradition in every thread"
-              className="site-logo h-[96px] w-auto max-w-[160px] object-contain object-left transition duration-300 group-hover:scale-[1.03] md:h-[112px] md:max-w-[190px]"
+              className="site-logo my-1 h-[88px] w-auto max-w-[150px] object-contain object-left transition duration-300 group-hover:scale-[1.03] md:h-[100px] md:max-w-[175px]"
             />
           </Link>
           <div className="flex flex-1 items-center justify-end gap-3 pr-4 md:pr-8 lg:justify-between lg:pl-6">
@@ -145,9 +145,9 @@ export default function Layout() {
         <div className="mx-auto grid max-w-[1320px] gap-12 border-b border-white/10 pb-14 md:grid-cols-4">
           <div className="md:col-span-2">
             <img
-              src="/logo.webp?v=3"
+              src="/logo.webp?v=4"
               alt="Rahim Fabrics"
-              className="site-logo h-20 w-auto object-contain object-left md:h-24"
+              className="site-logo my-2 h-20 w-auto object-contain object-left md:h-24"
             />
             <p className="mt-4 text-sm font-semibold text-gold-400">{BRAND_LINE}</p>
             <p className="mt-3 max-w-md text-sm leading-7 text-white/55">

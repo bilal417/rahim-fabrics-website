@@ -15,12 +15,14 @@ body { margin: 0; min-width: 320px; min-height: 100vh; background: #fbf8f2; }
 .field { @apply w-full rounded-sm border border-black/10 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-black/35 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/10; }
 .fabric-tile { background-image: url('/images/fabric-collection.webp'); background-size: 300% 200%; background-repeat: no-repeat; }
 .site-logo {
-  /* Thin green outline so gold lettering stays readable on light backgrounds */
+  /* Extra green outline so gold lettering stays readable on light backgrounds */
   filter:
-    drop-shadow(0.5px 0 0 #073b2c)
-    drop-shadow(-0.5px 0 0 #073b2c)
-    drop-shadow(0 0.5px 0 #073b2c)
-    drop-shadow(0 -0.5px 0 #073b2c);
+    drop-shadow(0 0 0.6px #073b2c)
+    drop-shadow(0 0 0.6px #073b2c)
+    drop-shadow(1px 0 0 #073b2c)
+    drop-shadow(-1px 0 0 #073b2c)
+    drop-shadow(0 1px 0 #073b2c)
+    drop-shadow(0 -1px 0 #073b2c);
 }
 .reveal { animation: reveal .65s ease both; }
 @keyframes reveal { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
