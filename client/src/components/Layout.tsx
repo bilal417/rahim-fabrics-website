@@ -50,19 +50,22 @@ export default function Layout() {
         </div>
       </div>
       <header className="sticky top-0 z-50 border-b border-emerald-950/10 bg-[#fbf8f2]/95 shadow-[0_8px_30px_rgba(4,54,45,.06)] backdrop-blur-xl">
-        <div className="mx-auto grid min-h-[110px] w-full max-w-[1320px] grid-cols-[1fr_auto] items-center gap-4 px-5 pt-3 md:min-h-[124px] md:px-10 md:pt-4 lg:grid-cols-[1fr_auto_1fr]">
+        <div className="relative mx-auto flex h-[100px] w-full max-w-[1320px] items-center justify-between px-4 md:h-[112px] md:px-8">
           <Link
             to="/"
             aria-label="Rahim Fabrics home"
-            className="group justify-self-start rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+            className="group relative z-10 shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
           >
             <img
-              src="/logo.webp?v=5"
+              src="/logo.webp?v=6"
               alt="Rahim Fabrics — Tradition in every thread"
-              className="mt-1 h-[72px] w-[108px] object-contain object-left transition duration-300 group-hover:scale-[1.03] md:mt-2 md:h-[86px] md:w-[130px]"
+              className="h-[88px] w-auto max-w-[140px] object-contain object-left transition duration-300 group-hover:scale-[1.02] md:h-[100px] md:max-w-[160px]"
             />
           </Link>
-          <nav aria-label="Main navigation" className="hidden items-center justify-center gap-1 lg:flex">
+          <nav
+            aria-label="Main navigation"
+            className="absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 lg:flex"
+          >
             {links.map(([to, label]) => (
               <NavLink
                 key={to}
@@ -78,7 +81,7 @@ export default function Layout() {
               </NavLink>
             ))}
           </nav>
-          <div className="flex items-center justify-end gap-3 justify-self-end">
+          <div className="relative z-10 flex items-center gap-3">
             <Link
               to="/cart"
               className="relative grid h-11 w-11 place-items-center rounded-full border border-emerald-950/10 bg-white text-emerald-950"
