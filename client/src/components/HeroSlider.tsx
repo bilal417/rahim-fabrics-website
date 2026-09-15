@@ -36,7 +36,7 @@ export default function HeroSlider() {
         />
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/5" />
+      <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-emerald-950 via-emerald-950/75 to-transparent md:w-3/4" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/10" />
 
       <div className="pointer-events-none absolute inset-0 z-10 hidden font-display text-[11px] italic tracking-wide text-white/20 md:block">
@@ -53,12 +53,12 @@ export default function HeroSlider() {
             Gents Fabrics <span className="block italic text-gold-400 sm:inline">for Retail</span>{' '}& Wholesale
           </h1>
           <p className="mt-7 max-w-lg text-lg leading-8 text-white/75">
-            Shop by the metre for personal orders, or buy by the thaan for your business — quality fabrics from New Azam Cloth Market, Lahore.
+            Shop by the metre for personal orders, or place wholesale orders for your business — quality fabrics from New Azam Cloth Market, Lahore.
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link to="/catalogue" className="btn-primary">Shop fabrics <ArrowRight size={17} /></Link>
+            <Link to="/catalogue" className="btn-primary">Shop Now <ArrowRight size={17} /></Link>
             <Link to="/wholesale" className="btn-outline bg-black/15 backdrop-blur-sm">
-              Wholesale / thaan orders
+              Wholesale Orders
             </Link>
           </div>
         </div>

@@ -35,17 +35,26 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
           <span className="mt-1 flex items-center gap-1.5 whitespace-nowrap text-xs text-black/45">
             <Layers3 size={14} />
-            {product.suitsPerThaan} suits
+            {product.retailOnly ? product.fabricType : `${product.suitsPerThaan} suits`}
           </span>
         </div>
         <div className="mt-3 space-y-1 text-sm">
+          {product.compareAtPrice ? (
+            <div className="text-xs text-black/35 line-through">{formatPkr(product.compareAtPrice)}</div>
+          ) : null}
           <div className="font-semibold text-emerald-950">
             {formatPkr(product.retailPrice || 0)}{' '}
             <span className="text-xs font-medium text-black/40">/ {product.retailUnit || 'meter'}</span>
           </div>
-          <div className="text-xs text-black/45">
-            Wholesale {formatPkr(product.wholesalePrice || 0)} / thaan
-          </div>
+          {product.bundleQty && product.bundlePrice ? (
+            <div className="text-xs font-semibold text-gold-500">
+              {product.bundleQty} suits · {formatPkr(product.bundlePrice)}
+            </div>
+          ) : !product.retailOnly ? (
+            <div className="text-xs text-black/45">
+              Wholesale {formatPkr(product.wholesalePrice || 0)} / thaan
+            </div>
+          ) : null}
         </div>
         <div className="mt-4 flex items-center gap-2">
           {product.colors.slice(0, 4).map((c) => (
@@ -74,7 +83,10 @@ const colorMap: Record<string, string> = {
   Black: '#171717',
   Brown: '#65452f',
   Olive: '#68705a',
+  'Olive Khaki': '#6f6546',
   'Ice Blue': '#b7cbd0',
+  Rust: '#984f45',
+  'Warm Khaki': '#8a744c',
   'Light Grey': '#c4c4c4',
   Stone: '#9b9488',
   'Bottle Green': '#183c2b',

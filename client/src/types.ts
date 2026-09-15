@@ -15,6 +15,9 @@ export interface Product {
   stock: number;
   stockMeters?: number;
   retailPrice?: number;
+  compareAtPrice?: number;
+  bundleQty?: number;
+  bundlePrice?: number;
   wholesalePrice?: number;
   retailUnit?: RetailUnit;
   minRetailQty?: number;
@@ -22,6 +25,8 @@ export interface Product {
   images: Array<string | { url: string; publicId?: string }>;
   description: string;
   featured?: boolean;
+  retailOnly?: boolean;
+  purchaseMode?: 'checkout' | 'whatsapp';
   tilePosition?: string;
 }
 

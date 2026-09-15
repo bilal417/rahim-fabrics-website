@@ -1,4 +1,4 @@
-import { ArrowRight, BadgeCheck, Box, MapPin, Scissors, Truck } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import HeroSlider from '../components/HeroSlider';
 import ProductCard from '../components/ProductCard';
@@ -76,35 +76,31 @@ export default function Home() {
       <section className="bg-cream">
         <div className="mx-auto grid max-w-[1440px] lg:grid-cols-2">
           <div
-            className="min-h-[480px] bg-[url('/images/showroom-hero.png')] bg-cover bg-left"
+            className="relative min-h-[480px] overflow-hidden bg-[url('/images/rahim-fabrics-hero-shop-signboard.png')] bg-cover bg-left"
             role="img"
             aria-label="Rahim Fabrics showroom at New Azam Cloth Market Lahore"
-          />
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/40 via-emerald-900/20 to-transparent mix-blend-multiply" />
+          </div>
           <div className="flex items-center px-7 py-16 md:px-16 lg:px-20">
             <div>
-              <p className="eyebrow">Retail & wholesale</p>
+              <p className="eyebrow">Our Story</p>
               <h2 className="mt-4 font-display text-4xl font-semibold text-emerald-950 md:text-5xl">
-                By the metre, or by the thaan.
+                Seven years of fabric, trust and direct sourcing.
               </h2>
               <p className="mt-6 max-w-xl leading-8 text-black/55">
-                Order smaller retail lengths for personal stitching, or full thaans for your shop — same quality fabrics from New Azam Cloth Market, with clear prices and COD or bank transfer checkout.
+                Rahim Fabrics by Safeer Naseer Fabrics began seven years ago with a simple commitment: to bring dependable fabric variety directly from Faisalabad to our customers in Lahore.
               </p>
-              <div className="mt-9 grid gap-5 sm:grid-cols-2">
-                {[
-                  [Scissors, 'Retail by the metre', 'Clear per-metre pricing online'],
-                  [Box, 'Wholesale by the thaan', 'Packing and suit yield shown'],
-                  [BadgeCheck, 'Checked quality', 'Trade-ready fabric selection'],
-                  [Truck, 'Pakistan delivery', 'COD and bank transfer available'],
-                ].map(([Icon, t, d]) => (
-                  <div key={String(t)} className="flex gap-3">
-                    <Icon className="mt-1 text-gold-500" size={21} />
-                    <div>
-                      <h3 className="font-bold text-emerald-950">{String(t)}</h3>
-                      <p className="mt-1 text-sm text-black/45">{String(d)}</p>
-                    </div>
-                  </div>
-                ))}
+              <p className="mt-4 max-w-xl leading-8 text-black/55">
+                Our collection includes trusted names such as Shaheen, Badar, Tayyab and Haroon, alongside Boski, Karandi, cotton, wash & wear and seasonal fabrics—carefully selected for quality, choice and lasting value.
+              </p>
+              <div className="mt-8 border-l-2 border-gold-500 pl-5">
+                <p className="text-[10px] font-bold uppercase tracking-[.2em] text-black/40">Founded by</p>
+                <p className="mt-1 font-display text-2xl font-semibold text-emerald-950">Bilal Naseer</p>
               </div>
+              <Link to="/about" className="btn-dark mt-8 inline-flex">
+                Read Our Story <ArrowRight size={17} />
+              </Link>
             </div>
           </div>
         </div>

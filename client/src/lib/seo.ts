@@ -25,6 +25,7 @@ export const organizationSchema = {
     `https://wa.me/${BUSINESS_PHONE.replace('+', '')}`,
     SOCIAL.facebook,
     ...(SOCIAL.instagram ? [SOCIAL.instagram] : []),
+    ...(SOCIAL.tiktok ? [SOCIAL.tiktok] : []),
   ],
 };
 

@@ -123,9 +123,9 @@ export default function ProductDetail() {
             <ArrowLeft size={16} /> Back to shop
           </Link>
           <div className="grid gap-12 lg:grid-cols-[1.08fr_.92fr]">
-            <div className="grid gap-3 sm:grid-cols-[1fr_110px]">
+            <div className={`grid gap-3 ${urls.length > 1 ? 'sm:grid-cols-[1fr_110px]' : ''}`}>
               <div
-                className={`${uploadedPhoto ? 'bg-cover bg-center' : 'fabric-tile'} min-h-[540px] bg-[#eee4d3]`}
+                className={`${uploadedPhoto ? 'bg-contain bg-center bg-no-repeat' : 'fabric-tile'} min-h-[540px] bg-[#eee4d3]`}
                 style={
                   uploadedPhoto
                     ? { backgroundImage: `url(${photo})` }
@@ -134,9 +134,9 @@ export default function ProductDetail() {
                 role="img"
                 aria-label={`${product.name} fabric sample`}
               />
-              <div className="grid grid-cols-3 gap-3 sm:grid-cols-1">
-                {urls.length > 1 ? (
-                  urls.map((url, i) => (
+              {urls.length > 1 && (
+                <div className="grid grid-cols-3 gap-3 sm:grid-cols-1">
+                  {urls.map((url, i) => (
                     <button
                       aria-label={`View ${product.name} image ${i + 1}`}
                       key={url}
@@ -145,16 +145,9 @@ export default function ProductDetail() {
                       className={`min-h-28 bg-cover bg-center ${i === activeImage ? 'border-2 border-gold-500' : ''}`}
                       style={{ backgroundImage: `url(${url})` }}
                     />
-                  ))
-                ) : (
-                  <div
-                    className="fabric-tile min-h-28 border-2 border-gold-500"
-                    style={{ backgroundPosition: product.tilePosition || 'center' }}
-                    role="img"
-                    aria-label={`${product.name} fabric swatch`}
-                  />
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="lg:pl-8">
               <p className="eyebrow">
@@ -166,12 +159,33 @@ export default function ProductDetail() {
               <p className="mt-6 leading-8 text-black/55">{product.description}</p>
 
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-sm border border-emerald-950/10 bg-cream p-5">
+                <div className={`rounded-sm border border-emerald-950/10 bg-cream p-5 ${product.retailOnly ? 'sm:col-span-2' : ''}`}>
                   <p className="text-xs font-bold uppercase tracking-wider text-black/40">Retail price</p>
+                  {product.compareAtPrice ? (
+                    <p className="mt-2 text-sm font-semibold text-black/35 line-through">
+                      {formatPkr(product.compareAtPrice)}
+                    </p>
+                  ) : null}
                   <p className="mt-2 font-display text-3xl font-semibold text-emerald-950">
                     {formatPkr(product.retailPrice || 0)}
                   </p>
                   <p className="mt-1 text-sm text-black/45">per {retailUnit}</p>
+                  {product.bundleQty && product.bundlePrice ? (
+                    <p className="mt-3 rounded-sm bg-white px-4 py-3 text-sm font-bold text-emerald-950">
+                      Buy {product.bundleQty} suits for {formatPkr(product.bundlePrice)}
+                    </p>
+                  ) : null}
+                  {product.purchaseMode === 'whatsapp' ? (
+                    <a
+                      href={whatsappUrl(`Assalam-o-Alaikum, I want to order ${product.name} (${product.code}).`)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-dark mt-4 w-full"
+                    >
+                      <MessageCircle size={17} /> Order on WhatsApp
+                    </a>
+                  ) : (
+                    <>
                   <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-black/40">
                     Quantity ({retailUnit})
                     <input
@@ -185,8 +199,10 @@ export default function ProductDetail() {
                   <button type="button" onClick={addRetail} className="btn-dark mt-4 w-full">
                     <ShoppingBag size={17} /> Add retail to cart
                   </button>
+                    </>
+                  )}
                 </div>
-                <div className="rounded-sm border border-emerald-950/10 bg-white p-5">
+                {!product.retailOnly && <div className="rounded-sm border border-emerald-950/10 bg-white p-5">
                   <p className="text-xs font-bold uppercase tracking-wider text-black/40">Wholesale price</p>
                   <p className="mt-2 font-display text-3xl font-semibold text-emerald-950">
                     {formatPkr(product.wholesalePrice || 0)}
@@ -205,11 +221,11 @@ export default function ProductDetail() {
                   <button type="button" onClick={addWholesale} className="btn-outline mt-4 w-full border-emerald-950 text-emerald-950">
                     Add thaan to cart
                   </button>
-                </div>
+                </div>}
               </div>
               {message && <p className="mt-4 text-sm font-semibold text-emerald-900">{message}</p>}
 
-              <div className="mt-8 border-y border-black/10 py-6">
+              {!product.retailOnly && <div className="mt-8 border-y border-black/10 py-6">
                 <div className="grid grid-cols-2 gap-5">
                   <Spec icon={<Ruler />} label="Thaan length" value={product.thaanLength} />
                   <Spec
@@ -224,7 +240,7 @@ export default function ProductDetail() {
                   />
                   <Spec icon={<Share2 />} label="Wholesale stock" value={`${product.stock} thaans`} />
                 </div>
-              </div>
+              </div>}
 
               <div className="mt-7">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-black/45">Available colours</h2>

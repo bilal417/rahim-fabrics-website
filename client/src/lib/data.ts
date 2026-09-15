@@ -19,15 +19,66 @@ export const BRAND_LINE = 'Rahim Fabrics by Safeer Naseer Fabrics';
 
 export const SOCIAL = {
   facebook: 'https://www.facebook.com/profile.php?id=61594455503016',
-  /** Paste Instagram profile URL here when ready */
-  instagram: '' as string,
+  instagram: 'https://www.instagram.com/bilal.naseer.399/',
+  tiktok: 'https://www.tiktok.com/@rahimfabrics0?_r=1&_t=ZS-99iwwSmShYC',
 };
 
 export const PHONE_DISPLAY = '+92 321 9454085';
 export const PHONE_TEL = '+923219454085';
 export const EMAIL = 'info@rahimfabrics.site';
 
-/** Seed catalogue — empty until admin adds live products */
-export const products: Product[] = [];
+/** Featured catalogue items available even when the API is offline. */
+export const products: Product[] = [
+  {
+    _id: 'bit-coin-gul-ahmed-olive',
+    slug: 'bit-coin-by-gul-ahmed-olive',
+    name: 'Bit Coin by Gul Ahmed',
+    code: 'BC-GA-OLIVE',
+    category: 'Wash & Wear',
+    fabricType: 'Premium Wash & Wear',
+    colors: ['Olive Khaki', 'Ice Blue', 'Rust', 'Warm Khaki', 'Ivory'],
+    thaanLength: 'Retail suit pack',
+    suitsPerThaan: 1,
+    stock: 0,
+    stockMeters: 0,
+    retailPrice: 3299,
+    compareAtPrice: 4000,
+    bundleQty: 2,
+    bundlePrice: 6499,
+    retailUnit: 'suit',
+    minRetailQty: 1,
+    minWholesaleQty: 1,
+    images: [
+      '/images/products/bit-coin-olive-branded-v1.png',
+      '/images/products/bit-coin-ice-blue-branded-v1.png',
+      '/images/products/bit-coin-rust-branded-v1.png',
+      '/images/products/bit-coin-khaki-branded-v1.png',
+      '/images/products/bit-coin-ivory-branded-v1.png',
+    ],
+    description:
+      'Bit Coin by Gul Ahmed is a premium wash & wear fabric with a smooth finish, graceful drape and refined olive-khaki tone. A versatile unstitched choice for polished everyday and occasion wear.',
+    featured: true,
+    retailOnly: true,
+    purchaseMode: 'whatsapp',
+  },
+];
 
-export const categories = ['All Fabrics', 'Wash & Wear', 'Cotton', 'Khaddar', 'Summer', 'Winter'];
+export const categories = [
+  'All Fabrics',
+  'Summer',
+  'Winter',
+  'Cotton',
+  'Wash & Wear',
+  'Khaddar',
+  'Boski',
+  'Linen',
+  'Karandi',
+  'Tropical',
+  'Wool',
+  'Blended',
+];
+
+export const seasonalCollections = {
+  Summer: ['Cotton', 'Wash & Wear', 'Boski', 'Linen', 'Tropical', 'Blended'],
+  Winter: ['Khaddar', 'Karandi', 'Wool', 'Blended'],
+} as const;

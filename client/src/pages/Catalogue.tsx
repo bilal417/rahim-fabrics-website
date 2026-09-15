@@ -1,9 +1,10 @@
 import { Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import Seo, { Breadcrumbs } from '../components/Seo';
 import { api } from '../lib/api';
-import { categories, products as seedProducts } from '../lib/data';
+import { categories, products as seedProducts, seasonalCollections } from '../lib/data';
 import { itemListSchema, pageSeo, webPageSchema } from '../lib/seo';
 import type { Product } from '../types';
 
@@ -14,15 +15,37 @@ const crumbs = [
 ];
 
 export default function Catalogue() {
-  const [active, setActive] = useState('All Fabrics');
+  const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<Product[]>(seedProducts);
+  const requestedCategory = searchParams.get('category');
+  const requestedSeason = searchParams.get('season');
+  const active = requestedCategory && categories.includes(requestedCategory) ? requestedCategory : 'All Fabrics';
+  const activeSeason = requestedSeason && requestedSeason in seasonalCollections
+    ? (requestedSeason as keyof typeof seasonalCollections)
+    : null;
+
+  const selectCategory = (category: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('season');
+    if (category === 'All Fabrics') next.delete('category');
+    else next.set('category', category);
+    setSearchParams(next);
+  };
 
   useEffect(() => {
     api
       .get('/products')
       .then((r) => {
-        if (r.data?.length) setItems(r.data);
+        if (r.data?.length) {
+          const liveProducts = r.data as Product[];
+          setItems([
+            ...seedProducts.filter(
+              (seed) => !liveProducts.some((live) => live.slug === seed.slug || live.code === seed.code),
+            ),
+            ...liveProducts,
+          ]);
+        }
       })
       .catch(() => undefined);
   }, []);
@@ -31,10 +54,13 @@ export default function Catalogue() {
     () =>
       items.filter(
         (p) =>
+          (!activeSeason ||
+            p.category === activeSeason ||
+            (seasonalCollections[activeSeason] as readonly string[]).includes(p.category)) &&
           (active === 'All Fabrics' || p.category === active) &&
           `${p.name} ${p.code} ${p.fabricType}`.toLowerCase().includes(query.toLowerCase()),
       ),
-    [active, query, items],
+    [active, activeSeason, query, items],
   );
 
   return (
@@ -67,7 +93,7 @@ export default function Catalogue() {
         <div className="mx-auto max-w-[1320px]">
           <p className="eyebrow">Current stock · New Azam Cloth Market</p>
           <h1 className="mt-4 font-display text-5xl font-semibold md:text-6xl">
-            {seo.h1}
+            {activeSeason ? `${activeSeason} Fabric Collection` : seo.h1}
           </h1>
           <p className="mt-5 max-w-2xl text-white/55">
             Explore wash & wear, cotton, khaddar and seasonal ranges with retail prices per metre and wholesale rates per thaan. Add to cart and checkout online.
@@ -81,7 +107,7 @@ export default function Catalogue() {
             <div className="flex flex-wrap gap-2" role="tablist" aria-label="Fabric categories">
               {categories.map((c) => (
                 <button
-                  onClick={() => setActive(c)}
+                  onClick={() => selectCategory(c)}
                   key={c}
                   type="button"
                   role="tab"
