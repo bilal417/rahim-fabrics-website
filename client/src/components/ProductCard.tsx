@@ -91,4 +91,11 @@ const colorMap: Record<string, string> = {
   Stone: '#9b9488',
   'Bottle Green': '#183c2b',
   Coffee: '#593b2d',
+  'Sky Blue': '#87b6cf',
+  'Taupe Olive': '#807661',
+  'Muted Teal Blue': '#4f747d',
+  'Steel Blue Grey': '#667183',
+  'Warm Grey': '#77706e',
+  'Deep Charcoal Teal': '#34494b',
+  'Light Stone Beige': '#b8aa99',
 };
