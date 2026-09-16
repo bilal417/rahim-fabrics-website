@@ -27,6 +27,7 @@ export interface Product {
   featured?: boolean;
   retailOnly?: boolean;
   purchaseMode?: 'checkout' | 'whatsapp';
+  unlimitedStock?: boolean;
   tilePosition?: string;
 }
 
@@ -51,6 +52,19 @@ export interface CartItem {
   unit: 'meter' | 'suit' | 'thaan';
   qty: number;
   unitPrice: number;
+  bundleQty?: number;
+  bundlePrice?: number;
+}
+
+export function calculateItemTotal(item: Pick<CartItem, 'qty' | 'unitPrice' | 'bundleQty' | 'bundlePrice'>): number {
+  const bundleQty = Math.floor(Number(item.bundleQty || 0));
+  const bundlePrice = Number(item.bundlePrice || 0);
+  if (bundleQty > 1 && bundlePrice > 0 && Number.isInteger(item.qty)) {
+    const bundles = Math.floor(item.qty / bundleQty);
+    const singles = item.qty % bundleQty;
+    return bundles * bundlePrice + singles * item.unitPrice;
+  }
+  return item.qty * item.unitPrice;
 }
 
 export interface OrderItem {

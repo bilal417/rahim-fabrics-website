@@ -248,8 +248,14 @@ export function AdminDashboard() {
                         </td>
                         <td className="p-4">{formatPkr(p.wholesalePrice || 0)} / thaan</td>
                         <td className="p-4">
-                          <div className={p.stock < 10 ? 'font-bold text-red-700' : ''}>{p.stock} thaans</div>
-                          <div className="text-xs text-black/40">{p.stockMeters ?? 0} metres</div>
+                          {p.unlimitedStock ? (
+                            <div className="font-bold text-emerald-800">Unlimited retail stock</div>
+                          ) : (
+                            <>
+                              <div className={p.stock < 10 ? 'font-bold text-red-700' : ''}>{p.stock} thaans</div>
+                              <div className="text-xs text-black/40">{p.stockMeters ?? 0} metres</div>
+                            </>
+                          )}
                         </td>
                         <td className="p-4">
                           <button

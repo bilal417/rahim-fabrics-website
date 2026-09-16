@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { CartChannel, CartItem, Product } from '../types';
+import { calculateItemTotal, type CartChannel, type CartItem, type Product } from '../types';
 
 const STORAGE_KEY = 'rf_cart_v1';
 
@@ -81,7 +81,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existing) {
         return current.map((item) =>
           item.productId === product._id
-            ? { ...item, qty: item.qty + amount, unitPrice }
+            ? {
+                ...item,
+                qty: item.qty + amount,
+                unitPrice,
+                bundleQty: nextChannel === 'retail' ? product.bundleQty : undefined,
+                bundlePrice: nextChannel === 'retail' ? product.bundlePrice : undefined,
+              }
             : item,
         );
       }
@@ -97,6 +103,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           unit,
           qty: amount,
           unitPrice,
+          bundleQty: nextChannel === 'retail' ? product.bundleQty : undefined,
+          bundlePrice: nextChannel === 'retail' ? product.bundlePrice : undefined,
         },
       ];
     });
@@ -122,7 +130,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       channel,
       items,
       count: items.reduce((sum, item) => sum + item.qty, 0),
-      subtotal: items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0),
+      subtotal: items.reduce((sum, item) => sum + calculateItemTotal(item), 0),
       setChannel,
       addProduct,
       updateQty,

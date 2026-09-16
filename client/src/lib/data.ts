@@ -30,7 +30,7 @@ export const EMAIL = 'info@rahimfabrics.site';
 /** Featured catalogue items available even when the API is offline. */
 export const products: Product[] = [
   {
-    _id: 'grace-dunhill-self-textured',
+    _id: 'grace-dunhill-self-textured-winter-wash-and-wear',
     slug: 'grace-dunhill-self-textured-winter-wash-and-wear',
     name: 'Grace Dunhill Self-Textured',
     code: 'GR-DH-WW',
@@ -45,7 +45,7 @@ export const products: Product[] = [
       'Deep Charcoal Teal',
       'Light Stone Beige',
     ],
-    thaanLength: 'Unstitched suit',
+    thaanLength: '4 metres per unstitched suit',
     suitsPerThaan: 1,
     stock: 0,
     stockMeters: 0,
@@ -68,7 +68,8 @@ export const products: Product[] = [
       'Grace Dunhill Self-Textured is a premium winter wash & wear collection for men. Its refined self-textured finish, comfortable seasonal weight and seven versatile shades make it an elegant choice for everyday and occasion wear. Choose one unstitched suit for PKR 1,499 or any two suits for PKR 2,599.',
     featured: true,
     retailOnly: true,
-    purchaseMode: 'whatsapp',
+    purchaseMode: 'checkout',
+    unlimitedStock: true,
   },
   {
     _id: 'bit-coin-gul-ahmed-olive',

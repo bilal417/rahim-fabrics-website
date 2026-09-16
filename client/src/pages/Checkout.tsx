@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useCart } from '../context/CartContext';
 import { api } from '../lib/api';
-import { formatPkr, type Order, type PaymentMethod } from '../types';
+import { calculateItemTotal, formatPkr, type Order, type PaymentMethod } from '../types';
 
 type BankDetails = {
   accountName?: string;
@@ -147,7 +147,7 @@ export default function Checkout() {
                   <span className="text-white/70">
                     {item.name} × {item.qty} {item.unit}
                   </span>
-                  <span>{formatPkr(item.qty * item.unitPrice)}</span>
+                  <span>{formatPkr(calculateItemTotal(item))}</span>
                 </div>
               ))}
             </div>

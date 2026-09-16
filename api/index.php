@@ -26,6 +26,10 @@ try {
         respond(['status' => 'ok', 'service' => 'Rahim Fabrics PHP API']);
     }
 
+    if (($method === 'GET' && str_starts_with($route, '/products')) || ($method === 'POST' && $route === '/orders')) {
+        ensureGraceDunhillProduct();
+    }
+
     if ($method === 'POST' && $route === '/setup') {
         $data = input();
         $setupKey = (string) config('setup_key');
@@ -294,30 +298,41 @@ try {
                 if (!is_array($item)) {
                     fail('Invalid order item.', 422);
                 }
-                $productId = (int) ($item['productId'] ?? 0);
+                $productIdentifier = trim((string) ($item['productId'] ?? ''));
                 $qty = (float) ($item['qty'] ?? 0);
-                if ($productId <= 0 || $qty <= 0) {
+                if ($productIdentifier === '' || $qty <= 0) {
                     fail('Each item needs a product and quantity.', 422);
                 }
-                $statement = $pdo->prepare('SELECT * FROM products WHERE id = ? LIMIT 1 FOR UPDATE');
-                $statement->execute([$productId]);
+                if (ctype_digit($productIdentifier)) {
+                    $statement = $pdo->prepare('SELECT * FROM products WHERE id = ? LIMIT 1 FOR UPDATE');
+                    $statement->execute([(int) $productIdentifier]);
+                } else {
+                    $statement = $pdo->prepare('SELECT * FROM products WHERE slug = ? OR code = ? LIMIT 1 FOR UPDATE');
+                    $statement->execute([$productIdentifier, strtoupper($productIdentifier)]);
+                }
                 $product = $statement->fetch();
                 if (!$product) {
                     fail('One of the products is no longer available.', 404);
                 }
+                $productId = (int) $product['id'];
 
                 if ($channel === 'retail') {
                     $unit = (string) ($product['retail_unit'] ?? 'meter');
                     $unitPrice = (float) $product['retail_price'];
                     $minQty = max(1, (int) ($product['min_retail_qty'] ?? 1));
+                    if ($unit === 'suit' && floor($qty) !== $qty) {
+                        fail($product['name'] . ' can only be ordered in whole suits.', 422);
+                    }
                     if ($qty < $minQty) {
                         fail($product['name'] . ' requires at least ' . $minQty . ' ' . $unit . '(s).', 422);
                     }
-                    if ($qty > (int) ($product['stock_meters'] ?? 0)) {
-                        fail('Not enough retail stock for ' . $product['name'] . '.', 422);
+                    if (!isUnlimitedStockProduct($product)) {
+                        if ($qty > (int) ($product['stock_meters'] ?? 0)) {
+                            fail('Not enough retail stock for ' . $product['name'] . '.', 422);
+                        }
+                        $pdo->prepare('UPDATE products SET stock_meters = stock_meters - ? WHERE id = ?')
+                            ->execute([$qty, $productId]);
                     }
-                    $pdo->prepare('UPDATE products SET stock_meters = stock_meters - ? WHERE id = ?')
-                        ->execute([$qty, $productId]);
                 } else {
                     $unit = 'thaan';
                     $unitPrice = (float) $product['wholesale_price'];
@@ -336,7 +351,9 @@ try {
                     fail('Pricing is not configured for ' . $product['name'] . '.', 422);
                 }
 
-                $lineTotal = round($unitPrice * $qty, 2);
+                $lineTotal = $channel === 'retail'
+                    ? retailLineTotal($product, $qty, $unitPrice)
+                    : round($unitPrice * $qty, 2);
                 $subtotal += $lineTotal;
                 $normalized[] = [
                     'product_id' => $productId,

@@ -123,6 +123,36 @@ export function productSchema(product: Product) {
     .filter(Boolean)
     .map(absoluteImage);
 
+  const offers = [
+    {
+      '@type': 'Offer',
+      url: absoluteUrl(path),
+      priceCurrency: 'PKR',
+      price: Number(product.retailPrice || 0),
+      availability:
+        product.unlimitedStock || (product.stockMeters ?? 0) > 0 || product.stock > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/PreOrder',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@id': `${SITE_URL}/#organization` },
+      description: `Retail price per ${product.retailUnit || 'meter'}`,
+    },
+  ];
+
+  if (!product.retailOnly) {
+    offers.push({
+      '@type': 'Offer',
+      url: absoluteUrl(path),
+      priceCurrency: 'PKR',
+      price: Number(product.wholesalePrice || 0),
+      availability:
+        product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@id': `${SITE_URL}/#organization` },
+      description: 'Wholesale price per thaan',
+    });
+  }
+
   return {
     '@type': 'Product',
     '@id': `${absoluteUrl(path)}#product`,
@@ -137,32 +167,7 @@ export function productSchema(product: Product) {
     image: image.length ? image : [DEFAULT_IMAGE],
     material: product.fabricType,
     color: product.colors.join(', '),
-    offers: [
-      {
-        '@type': 'Offer',
-        url: absoluteUrl(path),
-        priceCurrency: 'PKR',
-        price: Number(product.retailPrice || 0),
-        availability:
-          (product.stockMeters ?? 0) > 0 || product.stock > 0
-            ? 'https://schema.org/InStock'
-            : 'https://schema.org/PreOrder',
-        itemCondition: 'https://schema.org/NewCondition',
-        seller: { '@id': `${SITE_URL}/#organization` },
-        description: `Retail price per ${product.retailUnit || 'meter'}`,
-      },
-      {
-        '@type': 'Offer',
-        url: absoluteUrl(path),
-        priceCurrency: 'PKR',
-        price: Number(product.wholesalePrice || 0),
-        availability:
-          product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
-        itemCondition: 'https://schema.org/NewCondition',
-        seller: { '@id': `${SITE_URL}/#organization` },
-        description: 'Wholesale price per thaan',
-      },
-    ],
+    offers,
     additionalProperty: [
       {
         '@type': 'PropertyValue',

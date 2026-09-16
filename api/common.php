@@ -173,6 +173,7 @@ function productJson(array $row, ?array $images = null): array
         $images = $statement->fetchAll();
     }
     $colors = json_decode((string) ($row['colors'] ?? '[]'), true);
+    $isGraceDunhill = (string) ($row['code'] ?? '') === 'GR-DH-WW';
     return [
         '_id' => (string) $row['id'],
         'slug' => $row['slug'],
@@ -186,6 +187,8 @@ function productJson(array $row, ?array $images = null): array
         'stock' => (int) $row['stock'],
         'stockMeters' => (int) ($row['stock_meters'] ?? 0),
         'retailPrice' => (float) ($row['retail_price'] ?? 0),
+        'bundleQty' => $isGraceDunhill ? 2 : null,
+        'bundlePrice' => $isGraceDunhill ? 2599.0 : null,
         'wholesalePrice' => (float) ($row['wholesale_price'] ?? 0),
         'retailUnit' => (string) ($row['retail_unit'] ?? 'meter'),
         'minRetailQty' => (int) ($row['min_retail_qty'] ?? 1),
@@ -193,9 +196,87 @@ function productJson(array $row, ?array $images = null): array
         'images' => array_map(static fn (array $image): array => ['url' => $image['url']], $images),
         'description' => $row['description'],
         'featured' => (bool) $row['featured'],
+        'retailOnly' => $isGraceDunhill,
+        'purchaseMode' => 'checkout',
+        'unlimitedStock' => $isGraceDunhill,
         'createdAt' => $row['created_at'],
         'updatedAt' => $row['updated_at'],
     ];
+}
+
+function isUnlimitedStockProduct(array $product): bool
+{
+    return (string) ($product['code'] ?? '') === 'GR-DH-WW';
+}
+
+function retailLineTotal(array $product, float $quantity, float $unitPrice): float
+{
+    if ((string) ($product['code'] ?? '') !== 'GR-DH-WW') {
+        return round($unitPrice * $quantity, 2);
+    }
+
+    $wholeSuits = (int) $quantity;
+    $pairs = intdiv($wholeSuits, 2);
+    $singleSuits = $wholeSuits % 2;
+    return round(($pairs * 2599.0) + ($singleSuits * 1499.0), 2);
+}
+
+function ensureGraceDunhillProduct(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $find = $pdo->prepare('SELECT id FROM products WHERE code = ? OR slug = ? LIMIT 1');
+    $find->execute(['GR-DH-WW', 'grace-dunhill-self-textured-winter-wash-and-wear']);
+    $productId = (int) ($find->fetchColumn() ?: 0);
+
+    if ($productId === 0) {
+        $insert = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, retail_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $insert->execute([
+            'Grace Dunhill Self-Textured',
+            'grace-dunhill-self-textured-winter-wash-and-wear',
+            'GR-DH-WW',
+            'Winter',
+            'Premium Winter Wash & Wear',
+            json_encode(['Sky Blue', 'Taupe Olive', 'Muted Teal Blue', 'Steel Blue Grey', 'Warm Grey', 'Deep Charcoal Teal', 'Light Stone Beige']),
+            '4 metres per unstitched suit',
+            1,
+            0,
+            0,
+            1499.0,
+            0.0,
+            'suit',
+            1,
+            1,
+            'Grace Dunhill Self-Textured is a premium winter wash & wear collection for men. Its refined self-textured finish, comfortable seasonal weight and seven versatile shades make it an elegant choice for everyday and occasion wear. Choose one unstitched 4-metre suit for PKR 1,499 or any two suits for PKR 2,599.',
+            1,
+        ]);
+        $productId = (int) $pdo->lastInsertId();
+    }
+
+    $imageCount = $pdo->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ?');
+    $imageCount->execute([$productId]);
+    if ((int) $imageCount->fetchColumn() > 0) {
+        return;
+    }
+
+    $urls = [
+        '/images/products/grace-dunhill-sky-blue-tailor-desk.png',
+        '/images/products/grace-dunhill-taupe-olive-tailor-desk.png',
+        '/images/products/grace-dunhill-muted-teal-blue-tailor-desk.png',
+        '/images/products/grace-dunhill-steel-blue-grey-tailor-desk.png',
+        '/images/products/grace-dunhill-warm-grey-tailor-desk.png',
+        '/images/products/grace-dunhill-deep-charcoal-teal-tailor-desk.png',
+        '/images/products/grace-dunhill-light-stone-beige-tailor-desk.png',
+    ];
+    $imageInsert = $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, ?)');
+    foreach ($urls as $position => $url) {
+        $imageInsert->execute([$productId, $url, $position]);
+    }
 }
 
 function bankPaymentDetails(): array

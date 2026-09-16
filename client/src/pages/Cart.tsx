@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useCart } from '../context/CartContext';
-import { formatPkr } from '../types';
+import { calculateItemTotal, formatPkr } from '../types';
 
 export default function Cart() {
   const { channel, items, subtotal, setChannel, updateQty, removeItem, clear } = useCart();
@@ -82,7 +82,14 @@ export default function Cart() {
                         </button>
                       </div>
                     </div>
-                    <div className="font-semibold text-emerald-950">{formatPkr(item.qty * item.unitPrice)}</div>
+                    <div className="text-right font-semibold text-emerald-950">
+                      {formatPkr(calculateItemTotal(item))}
+                      {item.bundleQty && item.bundlePrice ? (
+                        <p className="mt-1 text-xs font-medium text-gold-600">
+                          {item.bundleQty} suits · {formatPkr(item.bundlePrice)}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                 ))}
                 <button type="button" onClick={clear} className="text-sm font-bold text-black/40">
