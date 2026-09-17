@@ -173,7 +173,6 @@ function productJson(array $row, ?array $images = null): array
         $images = $statement->fetchAll();
     }
     $colors = json_decode((string) ($row['colors'] ?? '[]'), true);
-    $isGraceDunhill = (string) ($row['code'] ?? '') === 'GR-DH-WW';
     return [
         '_id' => (string) $row['id'],
         'slug' => $row['slug'],
@@ -187,8 +186,9 @@ function productJson(array $row, ?array $images = null): array
         'stock' => (int) $row['stock'],
         'stockMeters' => (int) ($row['stock_meters'] ?? 0),
         'retailPrice' => (float) ($row['retail_price'] ?? 0),
-        'bundleQty' => $isGraceDunhill ? 2 : null,
-        'bundlePrice' => $isGraceDunhill ? 2599.0 : null,
+        'compareAtPrice' => isset($row['compare_at_price']) ? (float) $row['compare_at_price'] : null,
+        'bundleQty' => isset($row['bundle_qty']) ? (int) $row['bundle_qty'] : null,
+        'bundlePrice' => isset($row['bundle_price']) ? (float) $row['bundle_price'] : null,
         'wholesalePrice' => (float) ($row['wholesale_price'] ?? 0),
         'retailUnit' => (string) ($row['retail_unit'] ?? 'meter'),
         'minRetailQty' => (int) ($row['min_retail_qty'] ?? 1),
@@ -196,9 +196,9 @@ function productJson(array $row, ?array $images = null): array
         'images' => array_map(static fn (array $image): array => ['url' => $image['url']], $images),
         'description' => $row['description'],
         'featured' => (bool) $row['featured'],
-        'retailOnly' => $isGraceDunhill,
-        'purchaseMode' => 'checkout',
-        'unlimitedStock' => $isGraceDunhill,
+        'retailOnly' => (bool) ($row['retail_only'] ?? false),
+        'purchaseMode' => (string) ($row['purchase_mode'] ?? 'checkout'),
+        'unlimitedStock' => (bool) ($row['unlimited_stock'] ?? false),
         'createdAt' => $row['created_at'],
         'updatedAt' => $row['updated_at'],
     ];
@@ -206,19 +206,49 @@ function productJson(array $row, ?array $images = null): array
 
 function isUnlimitedStockProduct(array $product): bool
 {
-    return (string) ($product['code'] ?? '') === 'GR-DH-WW';
+    return (bool) ($product['unlimited_stock'] ?? false);
 }
 
 function retailLineTotal(array $product, float $quantity, float $unitPrice): float
 {
-    if ((string) ($product['code'] ?? '') !== 'GR-DH-WW') {
+    $bundleQty = (int) ($product['bundle_qty'] ?? 0);
+    $bundlePrice = (float) ($product['bundle_price'] ?? 0);
+    if ($bundleQty < 2 || $bundlePrice <= 0 || floor($quantity) !== $quantity) {
         return round($unitPrice * $quantity, 2);
     }
 
-    $wholeSuits = (int) $quantity;
-    $pairs = intdiv($wholeSuits, 2);
-    $singleSuits = $wholeSuits % 2;
-    return round(($pairs * 2599.0) + ($singleSuits * 1499.0), 2);
+    $wholeUnits = (int) $quantity;
+    $bundles = intdiv($wholeUnits, $bundleQty);
+    $singleUnits = $wholeUnits % $bundleQty;
+    return round(($bundles * $bundlePrice) + ($singleUnits * $unitPrice), 2);
+}
+
+function ensureProductOfferColumns(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $columns = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'products'")
+        ->fetchAll(PDO::FETCH_COLUMN);
+    $existing = array_fill_keys(array_map('strval', $columns), true);
+    $definitions = [
+        'compare_at_price' => 'DECIMAL(12,2) NULL DEFAULT NULL AFTER retail_price',
+        'bundle_qty' => 'INT UNSIGNED NULL DEFAULT NULL AFTER compare_at_price',
+        'bundle_price' => 'DECIMAL(12,2) NULL DEFAULT NULL AFTER bundle_qty',
+        'retail_only' => 'TINYINT(1) NOT NULL DEFAULT 0 AFTER min_wholesale_qty',
+        'unlimited_stock' => 'TINYINT(1) NOT NULL DEFAULT 0 AFTER retail_only',
+        'purchase_mode' => "ENUM('checkout', 'whatsapp') NOT NULL DEFAULT 'checkout' AFTER unlimited_stock",
+    ];
+
+    foreach ($definitions as $column => $definition) {
+        if (!isset($existing[$column])) {
+            $pdo->exec("ALTER TABLE products ADD COLUMN {$column} {$definition}");
+        }
+    }
 }
 
 function ensureGraceDunhillProduct(): void
@@ -257,6 +287,9 @@ function ensureGraceDunhillProduct(): void
         ]);
         $productId = (int) $pdo->lastInsertId();
     }
+
+    $offer = $pdo->prepare("UPDATE products SET compare_at_price = NULL, bundle_qty = 2, bundle_price = 2599.00, retail_only = 1, unlimited_stock = 1, purchase_mode = 'checkout' WHERE id = ?");
+    $offer->execute([$productId]);
 
     $imageCount = $pdo->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ?');
     $imageCount->execute([$productId]);

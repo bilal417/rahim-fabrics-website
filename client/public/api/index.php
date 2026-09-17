@@ -26,7 +26,8 @@ try {
         respond(['status' => 'ok', 'service' => 'Rahim Fabrics PHP API']);
     }
 
-    if (($method === 'GET' && str_starts_with($route, '/products')) || ($method === 'POST' && $route === '/orders')) {
+    if (str_starts_with($route, '/products') || ($method === 'POST' && $route === '/orders')) {
+        ensureProductOfferColumns();
         ensureGraceDunhillProduct();
     }
 
@@ -116,6 +117,14 @@ try {
         $stock = max(0, (int) ($data['stock'] ?? 0));
         $stockMeters = max(0, (int) ($data['stockMeters'] ?? 0));
         $retailPrice = max(0, (float) ($data['retailPrice'] ?? 0));
+        $compareAtPrice = (float) ($data['compareAtPrice'] ?? 0);
+        $compareAtPrice = $compareAtPrice > 0 ? $compareAtPrice : null;
+        $bundleEnabled = filter_var($data['bundleEnabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $bundleQty = $bundleEnabled ? max(2, (int) ($data['bundleQty'] ?? 2)) : null;
+        $bundlePrice = $bundleEnabled ? max(0, (float) ($data['bundlePrice'] ?? 0)) : null;
+        if ($bundleEnabled && (!$bundlePrice || $bundlePrice >= $retailPrice * $bundleQty)) {
+            fail('Bundle price must be greater than zero and lower than the regular total.', 422);
+        }
         $wholesalePrice = max(0, (float) ($data['wholesalePrice'] ?? 0));
         $retailUnit = (string) ($data['retailUnit'] ?? 'meter');
         if (!in_array($retailUnit, ['meter', 'suit'], true)) {
@@ -123,6 +132,12 @@ try {
         }
         $minRetailQty = max(1, (int) ($data['minRetailQty'] ?? 1));
         $minWholesaleQty = max(1, (int) ($data['minWholesaleQty'] ?? 1));
+        $retailOnly = filter_var($data['retailOnly'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+        $unlimitedStock = filter_var($data['unlimitedStock'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+        $purchaseMode = (string) ($data['purchaseMode'] ?? 'checkout');
+        if (!in_array($purchaseMode, ['checkout', 'whatsapp'], true)) {
+            $purchaseMode = 'checkout';
+        }
         $featured = filter_var($data['featured'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
         $newImages = uploadedImages();
         $pdo = db();
@@ -137,11 +152,11 @@ try {
                     foreach ($newImages as $url) removeLocalImage($url);
                     fail('Product not found.', 404);
                 }
-                $statement = $pdo->prepare('UPDATE products SET name=?, slug=?, code=?, category=?, fabric_type=?, colors=?, thaan_length=?, suits_per_thaan=?, stock=?, stock_meters=?, retail_price=?, wholesale_price=?, retail_unit=?, min_retail_qty=?, min_wholesale_qty=?, description=?, featured=? WHERE id=?');
-                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $retailPrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $description, $featured, $id]);
+                $statement = $pdo->prepare('UPDATE products SET name=?, slug=?, code=?, category=?, fabric_type=?, colors=?, thaan_length=?, suits_per_thaan=?, stock=?, stock_meters=?, retail_price=?, compare_at_price=?, bundle_qty=?, bundle_price=?, wholesale_price=?, retail_unit=?, min_retail_qty=?, min_wholesale_qty=?, retail_only=?, unlimited_stock=?, purchase_mode=?, description=?, featured=? WHERE id=?');
+                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $retailPrice, $compareAtPrice, $bundleQty, $bundlePrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $retailOnly, $unlimitedStock, $purchaseMode, $description, $featured, $id]);
             } else {
-                $statement = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, retail_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $retailPrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $description, $featured]);
+                $statement = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, retail_price, compare_at_price, bundle_qty, bundle_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, retail_only, unlimited_stock, purchase_mode, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $retailPrice, $compareAtPrice, $bundleQty, $bundlePrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $retailOnly, $unlimitedStock, $purchaseMode, $description, $featured]);
                 $id = (int) $pdo->lastInsertId();
             }
             if ($newImages) {

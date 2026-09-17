@@ -245,6 +245,11 @@ export function AdminDashboard() {
                         <td className="p-4 text-black/50">{p.code}</td>
                         <td className="p-4">
                           {formatPkr(p.retailPrice || 0)} / {p.retailUnit || 'meter'}
+                          {p.bundleQty && p.bundlePrice ? (
+                            <div className="mt-1 text-xs font-bold text-gold-600">
+                              {p.bundleQty} for {formatPkr(p.bundlePrice)}
+                            </div>
+                          ) : null}
                         </td>
                         <td className="p-4">{formatPkr(p.wholesalePrice || 0)} / thaan</td>
                         <td className="p-4">
@@ -291,6 +296,16 @@ export function AdminDashboard() {
                 <AdminInput name="stock" placeholder="Wholesale stock (thaans)" type="number" value={editing?.stock} />
                 <AdminInput name="stockMeters" placeholder="Retail stock (metres)" type="number" value={editing?.stockMeters ?? 0} />
                 <AdminInput name="retailPrice" placeholder="Retail price (PKR)" type="number" value={editing?.retailPrice ?? 0} />
+                <AdminInput name="compareAtPrice" placeholder="Compare-at price (optional; enter 0 to hide)" type="number" value={editing?.compareAtPrice ?? 0} />
+                <AdminCheckbox
+                  name="bundleEnabled"
+                  label="Enable bundle offer"
+                  defaultChecked={Boolean(editing?.bundleQty && editing?.bundlePrice)}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <AdminInput name="bundleQty" placeholder="Bundle quantity" type="number" value={editing?.bundleQty ?? 2} />
+                  <AdminInput name="bundlePrice" placeholder="Bundle price (PKR)" type="number" value={editing?.bundlePrice ?? 0} />
+                </div>
                 <AdminInput name="wholesalePrice" placeholder="Wholesale price / thaan (PKR)" type="number" value={editing?.wholesalePrice ?? 0} />
                 <label className="text-xs font-bold uppercase tracking-wider text-black/45">
                   Retail unit
@@ -301,6 +316,18 @@ export function AdminDashboard() {
                 </label>
                 <AdminInput name="minRetailQty" placeholder="Min retail qty" type="number" value={editing?.minRetailQty ?? 2} />
                 <AdminInput name="minWholesaleQty" placeholder="Min wholesale qty" type="number" value={editing?.minWholesaleQty ?? 1} />
+                <label className="text-xs font-bold uppercase tracking-wider text-black/45">
+                  Purchase mode
+                  <select name="purchaseMode" defaultValue={editing?.purchaseMode || 'checkout'} className="field mt-2 normal-case tracking-normal">
+                    <option value="checkout">Website checkout</option>
+                    <option value="whatsapp">WhatsApp order</option>
+                  </select>
+                </label>
+                <div className="grid gap-3 rounded-sm border border-black/10 bg-cream p-4">
+                  <AdminCheckbox name="retailOnly" label="Retail-only product" defaultChecked={Boolean(editing?.retailOnly)} />
+                  <AdminCheckbox name="unlimitedStock" label="Unlimited stock" defaultChecked={Boolean(editing?.unlimitedStock)} />
+                  <AdminCheckbox name="featured" label="Featured product" defaultChecked={Boolean(editing?.featured)} />
+                </div>
                 <textarea
                   name="description"
                   required
@@ -518,4 +545,21 @@ function AdminInput({
   value?: string | number;
 }) {
   return <input name={name} placeholder={placeholder} type={type} defaultValue={value} required className="field" />;
+}
+
+function AdminCheckbox({
+  name,
+  label,
+  defaultChecked = false,
+}: {
+  name: string;
+  label: string;
+  defaultChecked?: boolean;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold text-emerald-950">
+      <input name={name} type="checkbox" value="1" defaultChecked={defaultChecked} className="h-4 w-4 accent-emerald-900" />
+      {label}
+    </label>
+  );
 }
