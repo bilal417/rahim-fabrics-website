@@ -72,7 +72,7 @@ export const products: Product[] = [
     unlimitedStock: true,
   },
   {
-    _id: 'bit-coin-gul-ahmed-olive',
+    _id: 'bit-coin-by-gul-ahmed-olive',
     slug: 'bit-coin-by-gul-ahmed-olive',
     name: 'Bit Coin by Gul Ahmed',
     code: 'BC-GA-OLIVE',
@@ -101,7 +101,8 @@ export const products: Product[] = [
       'Bit Coin by Gul Ahmed is a premium wash & wear fabric with a smooth finish, graceful drape and refined olive-khaki tone. A versatile unstitched choice for polished everyday and occasion wear.',
     featured: true,
     retailOnly: true,
-    purchaseMode: 'whatsapp',
+    purchaseMode: 'checkout',
+    unlimitedStock: true,
   },
 ];
 

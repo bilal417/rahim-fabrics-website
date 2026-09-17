@@ -288,7 +288,7 @@ function ensureGraceDunhillProduct(): void
         $productId = (int) $pdo->lastInsertId();
     }
 
-    $offer = $pdo->prepare("UPDATE products SET compare_at_price = NULL, bundle_qty = 2, bundle_price = 2599.00, retail_only = 1, unlimited_stock = 1, purchase_mode = 'checkout' WHERE id = ?");
+    $offer = $pdo->prepare('UPDATE products SET compare_at_price = NULL, bundle_qty = 2, bundle_price = 2599.00, retail_only = 1, unlimited_stock = 1 WHERE id = ?');
     $offer->execute([$productId]);
 
     $imageCount = $pdo->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ?');
@@ -309,6 +309,92 @@ function ensureGraceDunhillProduct(): void
     $imageInsert = $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, ?)');
     foreach ($urls as $position => $url) {
         $imageInsert->execute([$productId, $url, $position]);
+    }
+}
+
+function ensureCurrentCatalogueCheckout(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $pdo->exec("CREATE TABLE IF NOT EXISTS app_migrations (
+        migration_key VARCHAR(120) NOT NULL,
+        applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (migration_key)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $migrationKey = '2026-09-18-current-catalogue-checkout';
+    $pdo->beginTransaction();
+    try {
+        $claim = $pdo->prepare('INSERT IGNORE INTO app_migrations (migration_key) VALUES (?)');
+        $claim->execute([$migrationKey]);
+        if ($claim->rowCount() === 0) {
+            $pdo->rollBack();
+            return;
+        }
+        $find = $pdo->prepare('SELECT id FROM products WHERE code = ? OR slug = ? LIMIT 1 FOR UPDATE');
+        $find->execute(['BC-GA-OLIVE', 'bit-coin-by-gul-ahmed-olive']);
+        $productId = (int) ($find->fetchColumn() ?: 0);
+
+        if ($productId === 0) {
+            $insert = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, retail_price, compare_at_price, bundle_qty, bundle_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, retail_only, unlimited_stock, purchase_mode, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $insert->execute([
+                'Bit Coin by Gul Ahmed',
+                'bit-coin-by-gul-ahmed-olive',
+                'BC-GA-OLIVE',
+                'Wash & Wear',
+                'Premium Wash & Wear',
+                json_encode(['Olive Khaki', 'Ice Blue', 'Rust', 'Warm Khaki', 'Ivory']),
+                'Retail suit pack',
+                1,
+                0,
+                0,
+                3299.0,
+                4000.0,
+                2,
+                6499.0,
+                0.0,
+                'suit',
+                1,
+                1,
+                1,
+                1,
+                'checkout',
+                'Bit Coin by Gul Ahmed is a premium wash & wear fabric with a smooth finish and graceful drape. Choose from Olive Khaki, Ice Blue, Rust, Warm Khaki and Ivory for polished everyday and occasion wear.',
+                1,
+            ]);
+            $productId = (int) $pdo->lastInsertId();
+        } else {
+            $update = $pdo->prepare("UPDATE products SET retail_price = 3299.00, compare_at_price = 4000.00, bundle_qty = 2, bundle_price = 6499.00, retail_unit = 'suit', min_retail_qty = 1, retail_only = 1, unlimited_stock = 1, purchase_mode = 'checkout' WHERE id = ?");
+            $update->execute([$productId]);
+        }
+
+        $imageCount = $pdo->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ?');
+        $imageCount->execute([$productId]);
+        if ((int) $imageCount->fetchColumn() === 0) {
+            $urls = [
+                '/images/products/bit-coin-olive-branded-v1.png',
+                '/images/products/bit-coin-ice-blue-branded-v1.png',
+                '/images/products/bit-coin-rust-branded-v1.png',
+                '/images/products/bit-coin-khaki-branded-v1.png',
+                '/images/products/bit-coin-ivory-branded-v1.png',
+            ];
+            $imageInsert = $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, ?)');
+            foreach ($urls as $position => $url) {
+                $imageInsert->execute([$productId, $url, $position]);
+            }
+        }
+
+        $pdo->exec("UPDATE products SET purchase_mode = 'checkout'");
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
     }
 }
 
