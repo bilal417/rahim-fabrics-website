@@ -60,7 +60,7 @@ export default function Layout() {
             className="group relative z-10 shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
           >
             <img
-              src="/logo.webp?v=6"
+              src="/logo-small.webp?v=1"
               alt="Rahim Fabrics — Tradition in every thread"
               className="h-[88px] w-auto max-w-[140px] rounded-md object-contain object-left transition duration-300 group-hover:scale-[1.02] md:h-[100px] md:max-w-[160px]"
             />
@@ -275,7 +275,7 @@ export default function Layout() {
         <div className="mx-auto grid max-w-[1320px] gap-12 border-b border-white/10 pb-14 md:grid-cols-4">
           <div className="md:col-span-2">
             <img
-              src="/logo.webp?v=5"
+              src="/logo-small.webp?v=1"
               alt="Rahim Fabrics"
               className="mt-2 h-16 w-auto object-contain md:h-20"
             />

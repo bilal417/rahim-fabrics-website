@@ -11,6 +11,7 @@ const slides = [
 
 export default function HeroSlider() {
   const [active, setActive] = useState(0);
+  const [firstImageLoaded, setFirstImageLoaded] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -27,9 +28,12 @@ export default function HeroSlider() {
       {slides.map((src, index) => (
         <img
           key={src}
-          src={src}
+          src={index === 0 || firstImageLoaded ? src : undefined}
           alt={`Rahim Fabrics shop collage ${index + 1}`}
           aria-hidden={active !== index}
+          fetchPriority={index === 0 ? 'high' : 'low'}
+          loading={index === 0 ? 'eager' : 'lazy'}
+          onLoad={index === 0 ? () => setFirstImageLoaded(true) : undefined}
           className={`absolute inset-0 h-full w-full object-cover object-center transition duration-1000 ${
             active === index ? 'scale-100 opacity-100' : 'scale-[1.025] opacity-0'
           }`}
