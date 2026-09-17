@@ -33,8 +33,9 @@ return array_merge([
     'setup_key' => $env('SETUP_KEY', ''),
     'token_ttl' => (int) $env('TOKEN_TTL', 604800),
     'upload_max_bytes' => (int) $env('UPLOAD_MAX_BYTES', 8388608),
-    'bank_account_name' => $env('BANK_ACCOUNT_NAME', 'Rahim Fabrics'),
-    'bank_name' => $env('BANK_NAME', ''),
-    'bank_account_number' => $env('BANK_ACCOUNT_NUMBER', ''),
-    'bank_iban' => $env('BANK_IBAN', ''),
+    'bank_account_name' => $env('BANK_ACCOUNT_NAME', 'SHEIKH MUHAMMAD BILAL'),
+    'bank_name' => $env('BANK_NAME', 'Meezan Bank'),
+    'bank_account_number' => $env('BANK_ACCOUNT_NUMBER', '02470108665528'),
+    'bank_iban' => $env('BANK_IBAN', 'PK88MEZN0002470108665528'),
+    'bank_branch' => $env('BANK_BRANCH', 'J-III JOHAR TOWN-LHR'),
 ], $local);

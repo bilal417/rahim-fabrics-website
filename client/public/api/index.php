@@ -30,6 +30,9 @@ try {
         ensureProductOfferColumns();
         ensureGraceDunhillProduct();
     }
+    if (str_starts_with($route, '/orders') || $route === '/checkout/payment-options') {
+        ensureOrderCheckoutColumns();
+    }
 
     if ($method === 'POST' && $route === '/setup') {
         $data = input();
@@ -297,14 +300,36 @@ try {
         $city = requiredText($data, 'city', 'City');
         $address = requiredText($data, 'address', 'Address');
         $email = trim((string) ($data['email'] ?? ''));
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            fail('Enter a valid email address.', 422);
+        }
         $businessName = trim((string) ($data['businessName'] ?? ''));
+        $country = trim((string) ($data['country'] ?? 'Pakistan')) ?: 'Pakistan';
+        $addressLine2 = trim((string) ($data['addressLine2'] ?? ''));
+        $postalCode = trim((string) ($data['postalCode'] ?? ''));
+        $billingSame = filter_var($data['billingSame'] ?? true, FILTER_VALIDATE_BOOLEAN);
+        $billingAddress = trim((string) ($data['billingAddress'] ?? ''));
+        if (!$billingSame && $billingAddress === '') {
+            fail('Billing address is required.', 422);
+        }
         $notes = trim((string) ($data['notes'] ?? ''));
         $itemsInput = $data['items'] ?? [];
+        if (is_string($itemsInput)) {
+            $decodedItems = json_decode($itemsInput, true);
+            $itemsInput = is_array($decodedItems) ? $decodedItems : [];
+        }
         if (!is_array($itemsInput) || !$itemsInput) {
             fail('Add at least one item to the order.', 422);
         }
+        $hasPaymentSlip = isset($_FILES['paymentSlip'])
+            && is_array($_FILES['paymentSlip'])
+            && (int) ($_FILES['paymentSlip']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+        if ($paymentMethod === 'bank_transfer' && !$hasPaymentSlip) {
+            fail('Payment slip is required for bank deposit orders.', 422);
+        }
 
         $pdo = db();
+        $paymentSlipUrl = null;
         $pdo->beginTransaction();
         try {
             $normalized = [];
@@ -381,10 +406,16 @@ try {
                 ];
             }
 
+            if ($paymentMethod === 'bank_transfer') {
+                $paymentSlipUrl = uploadedPaymentSlip();
+                if (!$paymentSlipUrl) {
+                    throw new RuntimeException('Payment slip could not be stored.');
+                }
+            }
             $orderNumber = generateOrderNumber($pdo);
             $paymentStatus = $paymentMethod === 'cod' ? 'cod_pending' : 'pending';
             $total = round($subtotal, 2);
-            $insert = $pdo->prepare('INSERT INTO orders (order_number, channel, customer_name, business_name, phone, email, city, address, payment_method, payment_status, order_status, subtotal, total, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $insert = $pdo->prepare('INSERT INTO orders (order_number, channel, customer_name, business_name, phone, email, country, city, address, address_line2, postal_code, billing_same, billing_address, payment_method, payment_slip_url, payment_status, order_status, subtotal, total, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $insert->execute([
                 $orderNumber,
                 $channel,
@@ -392,9 +423,15 @@ try {
                 $businessName !== '' ? $businessName : null,
                 $phone,
                 $email !== '' ? $email : null,
+                $country,
                 $city,
                 $address,
+                $addressLine2 !== '' ? $addressLine2 : null,
+                $postalCode !== '' ? $postalCode : null,
+                $billingSame ? 1 : 0,
+                $billingSame ? null : $billingAddress,
                 $paymentMethod,
+                $paymentSlipUrl,
                 $paymentStatus,
                 'new',
                 $subtotal,
@@ -420,6 +457,7 @@ try {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
+            removePaymentSlip($paymentSlipUrl);
             throw $error;
         }
 
@@ -448,7 +486,11 @@ try {
         if (!$order) {
             fail('Order not found.', 404);
         }
-        respond(orderJson($order));
+        $payload = orderJson($order);
+        if (!ctype_digit($identifier)) {
+            unset($payload['paymentSlipUrl']);
+        }
+        respond($payload);
     }
 
     if ($method === 'PATCH' && preg_match('#^/orders/(\d+)$#', $route, $matches)) {

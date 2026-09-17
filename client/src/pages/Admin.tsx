@@ -377,17 +377,44 @@ export function AdminDashboard() {
                               {order.phone}
                             </a>
                           </p>
-                          <p className="mt-2 text-sm text-black/55">{order.address}</p>
+                          {order.email && <p className="mt-1 text-sm text-black/45">{order.email}</p>}
+                          <p className="mt-2 text-sm text-black/55">
+                            {order.address}
+                            {order.addressLine2 ? `, ${order.addressLine2}` : ''}, {order.city}
+                            {order.postalCode ? ` ${order.postalCode}` : ''}, {order.country || 'Pakistan'}
+                          </p>
+                          {!order.billingSame && order.billingAddress && (
+                            <p className="mt-2 text-xs text-black/45">
+                              <span className="font-bold text-black/60">Billing:</span> {order.billingAddress}
+                            </p>
+                          )}
                           <p className="mt-3 text-sm font-semibold text-emerald-950">
                             {formatPkr(order.total)} · {order.paymentMethod.replace('_', ' ')}
                           </p>
-                          <div className="mt-3 space-y-1 text-xs text-black/45">
+                          {order.paymentMethod === 'bank_transfer' && order.paymentSlipUrl && (
+                            <a
+                              href={order.paymentSlipUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="mt-2 inline-flex rounded-sm bg-emerald-950 px-3 py-2 text-xs font-bold text-white"
+                            >
+                              View payment slip
+                            </a>
+                          )}
+                          <div className="mt-4 overflow-hidden rounded-sm border border-black/10 text-xs">
                             {order.items?.map((item) => (
-                              <div key={`${item.productCode}-${item.qty}`}>
-                                {item.productName} · {item.qty} {item.unit} · {formatPkr(item.lineTotal)}
+                              <div key={`${item.productCode}-${item.qty}`} className="grid gap-1 border-b border-black/10 p-3 last:border-0 sm:grid-cols-[1fr_auto]">
+                                <div>
+                                  <div className="font-bold text-emerald-950">{item.productName}</div>
+                                  <div className="text-black/45">Article: {item.productCode} · {item.qty} {item.unit} × {formatPkr(item.unitPrice)}</div>
+                                </div>
+                                <div className="font-bold text-emerald-950">{formatPkr(item.lineTotal)}</div>
                               </div>
                             ))}
                           </div>
+                          {order.notes && (
+                            <p className="mt-3 text-xs text-black/45"><span className="font-bold text-black/60">Notes:</span> {order.notes}</p>
+                          )}
                         </div>
                         <div className="shrink-0 space-y-3">
                           <div className="text-xs text-black/35">

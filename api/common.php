@@ -315,11 +315,99 @@ function ensureGraceDunhillProduct(): void
 function bankPaymentDetails(): array
 {
     return [
-        'accountName' => (string) config('bank_account_name', 'Rahim Fabrics'),
-        'bankName' => (string) config('bank_name', ''),
-        'accountNumber' => (string) config('bank_account_number', ''),
-        'iban' => (string) config('bank_iban', ''),
+        'accountName' => (string) config('bank_account_name', 'SHEIKH MUHAMMAD BILAL'),
+        'bankName' => (string) config('bank_name', 'Meezan Bank'),
+        'accountNumber' => (string) config('bank_account_number', '02470108665528'),
+        'iban' => (string) config('bank_iban', 'PK88MEZN0002470108665528'),
+        'branch' => (string) config('bank_branch', 'J-III JOHAR TOWN-LHR'),
     ];
+}
+
+function ensureOrderCheckoutColumns(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $tableExists = (int) $pdo->query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'")
+        ->fetchColumn();
+    if ($tableExists === 0) {
+        return;
+    }
+    $columns = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'")
+        ->fetchAll(PDO::FETCH_COLUMN);
+    $existing = array_fill_keys(array_map('strval', $columns), true);
+    $definitions = [
+        'country' => "VARCHAR(120) NOT NULL DEFAULT 'Pakistan' AFTER email",
+        'address_line2' => 'VARCHAR(255) NULL AFTER address',
+        'postal_code' => 'VARCHAR(32) NULL AFTER address_line2',
+        'billing_same' => 'TINYINT(1) NOT NULL DEFAULT 1 AFTER postal_code',
+        'billing_address' => 'TEXT NULL AFTER billing_same',
+        'payment_slip_url' => 'VARCHAR(500) NULL AFTER payment_method',
+    ];
+    foreach ($definitions as $column => $definition) {
+        if (!isset($existing[$column])) {
+            $pdo->exec("ALTER TABLE orders ADD COLUMN {$column} {$definition}");
+        }
+    }
+}
+
+function uploadedPaymentSlip(): ?string
+{
+    if (!isset($_FILES['paymentSlip']) || !is_array($_FILES['paymentSlip'])) {
+        return null;
+    }
+    $file = $_FILES['paymentSlip'];
+    $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+    if ($error === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    if ($error !== UPLOAD_ERR_OK) {
+        fail('Payment slip upload failed. Please select the file again.', 422);
+    }
+    $size = (int) ($file['size'] ?? 0);
+    $maximum = min((int) config('upload_max_bytes', 8388608), 8388608);
+    if ($size < 1 || $size > $maximum) {
+        fail('Payment slip must be smaller than 8 MB.', 422);
+    }
+    $temporary = (string) ($file['tmp_name'] ?? '');
+    if ($temporary === '' || !is_uploaded_file($temporary)) {
+        fail('Payment slip upload is invalid.', 422);
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($temporary) ?: '';
+    $extensions = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+        'application/pdf' => 'pdf',
+    ];
+    if (!isset($extensions[$mime])) {
+        fail('Payment slip must be a JPG, PNG, WEBP or PDF file.', 422);
+    }
+    $directory = dirname(__DIR__) . '/uploads/payment-slips';
+    if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+        throw new RuntimeException('Could not create payment slip storage.');
+    }
+    $filename = date('Ymd-His') . '-' . bin2hex(random_bytes(8)) . '.' . $extensions[$mime];
+    if (!move_uploaded_file($temporary, $directory . '/' . $filename)) {
+        throw new RuntimeException('Could not store payment slip.');
+    }
+    return '/uploads/payment-slips/' . $filename;
+}
+
+function removePaymentSlip(?string $url): void
+{
+    if (!$url || !str_starts_with($url, '/uploads/payment-slips/')) {
+        return;
+    }
+    $filename = basename($url);
+    $path = dirname(__DIR__) . '/uploads/payment-slips/' . $filename;
+    if (is_file($path)) {
+        @unlink($path);
+    }
 }
 
 function orderItemJson(array $row): array
@@ -351,9 +439,15 @@ function orderJson(array $row, ?array $items = null): array
         'businessName' => $row['business_name'] ?? '',
         'phone' => $row['phone'],
         'email' => $row['email'] ?? '',
+        'country' => $row['country'] ?? 'Pakistan',
         'city' => $row['city'],
         'address' => $row['address'],
+        'addressLine2' => $row['address_line2'] ?? '',
+        'postalCode' => $row['postal_code'] ?? '',
+        'billingSame' => (bool) ($row['billing_same'] ?? true),
+        'billingAddress' => $row['billing_address'] ?? '',
         'paymentMethod' => $row['payment_method'],
+        'paymentSlipUrl' => $row['payment_slip_url'] ?? null,
         'paymentStatus' => $row['payment_status'],
         'orderStatus' => $row['order_status'],
         'subtotal' => (float) $row['subtotal'],

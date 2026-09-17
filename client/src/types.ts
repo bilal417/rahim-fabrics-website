@@ -86,9 +86,15 @@ export interface Order {
   businessName?: string;
   phone: string;
   email?: string;
+  country?: string;
   city: string;
   address: string;
+  addressLine2?: string;
+  postalCode?: string;
+  billingSame?: boolean;
+  billingAddress?: string;
   paymentMethod: PaymentMethod;
+  paymentSlipUrl?: string | null;
   paymentStatus: string;
   orderStatus: string;
   subtotal: number;
@@ -101,6 +107,7 @@ export interface Order {
     bankName?: string;
     accountNumber?: string;
     iban?: string;
+    branch?: string;
   } | null;
 }
 

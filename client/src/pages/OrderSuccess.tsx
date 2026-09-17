@@ -50,7 +50,8 @@ export default function OrderSuccess() {
                   {order.bankDetails.bankName && <p>Bank: {order.bankDetails.bankName}</p>}
                   {order.bankDetails.accountNumber && <p>Account: {order.bankDetails.accountNumber}</p>}
                   {order.bankDetails.iban && <p>IBAN: {order.bankDetails.iban}</p>}
-                  <p className="mt-2">Use order number {order.orderNumber} as payment reference.</p>
+                  {order.bankDetails.branch && <p>Branch: {order.bankDetails.branch}</p>}
+                  <p className="mt-2">Your uploaded payment slip has been submitted with this order for verification.</p>
                 </div>
               )}
               {order.paymentMethod === 'cod' && (

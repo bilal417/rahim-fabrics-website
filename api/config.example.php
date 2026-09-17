@@ -12,4 +12,9 @@ return [
     'setup_key' => 'replace-with-a-different-long-random-key',
     'token_ttl' => 604800,
     'upload_max_bytes' => 8388608,
+    'bank_account_name' => 'SHEIKH MUHAMMAD BILAL',
+    'bank_name' => 'Meezan Bank',
+    'bank_account_number' => '02470108665528',
+    'bank_iban' => 'PK88MEZN0002470108665528',
+    'bank_branch' => 'J-III JOHAR TOWN-LHR',
 ];
