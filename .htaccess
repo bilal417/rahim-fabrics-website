@@ -24,10 +24,13 @@ DirectoryIndex index.html
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^api(?:/.*)?$ api/index.php [QSA,L]
 
-  # React Router fallback.
+  # Generate the sitemap from the current product catalogue.
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+  # React Router fallback with route-specific SEO metadata and status codes.
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . index.html [L]
+  RewriteRule . seo.php [L]
 </IfModule>
 
 <FilesMatch "^(?:package(?:-lock)?\.json|README\.md|\.gitignore)$">
