@@ -1,9 +1,11 @@
 import { ArrowRight, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import HeroSlider from '../components/HeroSlider';
 import ProductCard from '../components/ProductCard';
 import Seo from '../components/Seo';
-import { products } from '../lib/data';
+import { api } from '../lib/api';
+import { products as seedProducts } from '../lib/data';
 import {
   itemListSchema,
   localBusinessSchema,
@@ -12,10 +14,24 @@ import {
   websiteSchema,
   webPageSchema,
 } from '../lib/seo';
+import type { Product } from '../types';
 
 const seo = pageSeo.home;
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>(seedProducts.filter((product) => product.featured).slice(0, 3));
+
+  useEffect(() => {
+    api
+      .get('/products?featured=true')
+      .then((response) => {
+        if (Array.isArray(response.data) && response.data.length) {
+          setProducts((response.data as Product[]).slice(0, 3));
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
   return (
     <>
       <Seo
