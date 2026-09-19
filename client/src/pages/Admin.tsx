@@ -107,13 +107,26 @@ export function AdminDashboard() {
     const form = e.currentTarget;
     const data = new FormData(form);
     try {
-      await api.post(editing ? `/products/${editing._id}` : '/products', data);
+      await api.post(editing ? `/products/${editing._id}` : '/products', data, {
+        // Product image uploads can take longer on shared hosting. Keep this
+        // request alive so a successful save is not reported as a failure.
+        timeout: 120000,
+      });
       form.reset();
       setEditing(null);
       setTab('products');
       load();
-    } catch {
-      alert('Could not save. Confirm the PHP API, MySQL and uploads configuration.');
+    } catch (error) {
+      const failure = error as {
+        code?: string;
+        response?: { data?: { message?: string } };
+      };
+      const message = failure.response?.data?.message;
+      if (failure.code === 'ECONNABORTED') {
+        alert('The upload is taking longer than expected. Refresh the product list before trying again, because the product may still have been saved.');
+      } else {
+        alert(message || 'Could not save. Confirm the PHP API, MySQL and uploads configuration.');
+      }
     }
   }
 
