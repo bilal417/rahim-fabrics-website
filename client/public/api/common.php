@@ -312,6 +312,61 @@ function ensureGraceDunhillProduct(): void
     }
 }
 
+function ensureGraceMarjanProductImages(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $find = $pdo->prepare('SELECT id FROM products WHERE code = ? OR slug = ? LIMIT 1');
+    $find->execute(['GR-MW-01', 'grace-marjan-wool']);
+    $productId = (int) ($find->fetchColumn() ?: 0);
+    if ($productId === 0) {
+        return;
+    }
+
+    $urls = [
+        '/images/products/grace-marjan-wool-maroon.webp',
+        '/images/products/grace-marjan-wool-deep-teal.webp',
+        '/images/products/grace-marjan-wool-charcoal.webp',
+        '/images/products/grace-marjan-wool-rich-brown.webp',
+        '/images/products/grace-marjan-wool-deep-navy.webp',
+        '/images/products/grace-marjan-wool-forest-green.webp',
+        '/images/products/grace-marjan-wool-steel-blue.webp',
+    ];
+
+    $pdo->prepare('UPDATE products SET colors = ?, description = ? WHERE id = ?')->execute([
+        json_encode(['Maroon', 'Deep Teal', 'Charcoal', 'Rich Brown', 'Deep Navy', 'Forest Green', 'Steel Blue']),
+        'Grace Marjan Wool is a premium winter unstitched fabric for men, offering a soft feel, elegant fall and comfortable seasonal warmth. Available in seven sophisticated colours for everyday and occasion wear.',
+        $productId,
+    ]);
+
+    $currentStatement = $pdo->prepare('SELECT url FROM product_images WHERE product_id = ? ORDER BY sort_order, id');
+    $currentStatement->execute([$productId]);
+    $current = array_map('strval', $currentStatement->fetchAll(PDO::FETCH_COLUMN));
+    if ($current === $urls) {
+        return;
+    }
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('DELETE FROM product_images WHERE product_id = ?')->execute([$productId]);
+        $insert = $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, ?)');
+        foreach ($urls as $position => $url) {
+            $insert->execute([$productId, $url, $position]);
+        }
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
 function ensureCurrentCatalogueCheckout(): void
 {
     static $checked = false;

@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Seo, { Breadcrumbs } from '../components/Seo';
 import { useCart } from '../context/CartContext';
 import { api } from '../lib/api';
-import { products, whatsappUrl } from '../lib/data';
+import { productImageFallback, products, whatsappUrl } from '../lib/data';
 import { productPageSeo, productSchema, webPageSchema } from '../lib/seo';
 import { formatPkr, type Product } from '../types';
 
@@ -68,8 +68,8 @@ export default function ProductDetail() {
     .map((image) => (typeof image === 'string' ? image : image.url))
     .filter(Boolean);
   const photo = urls[activeImage];
-  const uploadedPhoto = photo && !photo.includes('fabric-collection');
-  const image = urls[0] || '/logo.webp';
+  const fallbackImage = productImageFallback(product);
+  const image = urls[0] || fallbackImage;
   const seo = productPageSeo(product);
   const retailUnit = product.retailUnit || 'meter';
 
@@ -124,16 +124,20 @@ export default function ProductDetail() {
           </Link>
           <div className="grid gap-12 lg:grid-cols-[1.08fr_.92fr]">
             <div className={`grid gap-3 ${urls.length > 1 ? 'sm:grid-cols-[1fr_110px]' : ''}`}>
-              <div
-                className={`${uploadedPhoto ? 'bg-contain bg-center bg-no-repeat' : 'fabric-tile'} min-h-[540px] bg-[#eee4d3]`}
-                style={
-                  uploadedPhoto
-                    ? { backgroundImage: `url(${photo})` }
-                    : { backgroundPosition: product.tilePosition || 'center' }
-                }
-                role="img"
-                aria-label={`${product.name} fabric sample`}
-              />
+              <div className="min-h-[540px] bg-[#eee4d3]">
+                <img
+                  src={photo || fallbackImage}
+                  alt={`${product.name} ${product.colors[activeImage] || 'fabric'} product pack`}
+                  width="900"
+                  height="1125"
+                  decoding="async"
+                  fetchPriority="high"
+                  onError={(event) => {
+                    if (!event.currentTarget.src.endsWith(fallbackImage)) event.currentTarget.src = fallbackImage;
+                  }}
+                  className="h-full min-h-[540px] w-full object-contain"
+                />
+              </div>
               {urls.length > 1 && (
                 <div className="grid grid-cols-3 gap-3 sm:grid-cols-1">
                   {urls.map((url, i) => (
@@ -142,9 +146,21 @@ export default function ProductDetail() {
                       key={url}
                       type="button"
                       onClick={() => setActiveImage(i)}
-                      className={`min-h-28 bg-cover bg-center ${i === activeImage ? 'border-2 border-gold-500' : ''}`}
-                      style={{ backgroundImage: `url(${url})` }}
-                    />
+                      className={`min-h-28 overflow-hidden bg-[#eee4d3] ${i === activeImage ? 'border-2 border-gold-500' : ''}`}
+                    >
+                      <img
+                        src={url}
+                        alt={`${product.name} ${product.colors[i] || `shade ${i + 1}`}`}
+                        width="180"
+                        height="225"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(event) => {
+                          if (!event.currentTarget.src.endsWith(fallbackImage)) event.currentTarget.src = fallbackImage;
+                        }}
+                        className="h-full min-h-28 w-full object-cover"
+                      />
+                    </button>
                   ))}
                 </div>
               )}

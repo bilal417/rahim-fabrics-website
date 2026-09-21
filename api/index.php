@@ -29,6 +29,7 @@ try {
     if (str_starts_with($route, '/products') || ($method === 'POST' && $route === '/orders')) {
         ensureProductOfferColumns();
         ensureGraceDunhillProduct();
+        ensureGraceMarjanProductImages();
         ensureCurrentCatalogueCheckout();
     }
     if (str_starts_with($route, '/orders') || $route === '/checkout/payment-options') {

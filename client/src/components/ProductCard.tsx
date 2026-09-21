@@ -1,24 +1,28 @@
 import { ArrowUpRight, Layers3 } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { productImageFallback } from '../lib/data';
 import type { Product } from '../types';
 import { formatPkr } from '../types';
 
 export default function ProductCard({ product }: { product: Product }) {
   const first = product.images?.[0];
   const photo = typeof first === 'string' ? first : first?.url;
-  const uploadedPhoto = photo && !photo.includes('fabric-collection');
+  const fallback = productImageFallback(product);
+  const [imageFailed, setImageFailed] = useState(false);
+  const src = imageFailed ? fallback : photo || fallback;
   return (
     <Link to={`/products/${product.slug || product._id}`} className="group block reveal">
       <div className="relative aspect-[4/4.7] overflow-hidden bg-[#e9e0d0]">
-        <div
-          className={`${uploadedPhoto ? 'bg-cover bg-center' : 'fabric-tile'} absolute inset-0 transition duration-700 group-hover:scale-[1.04]`}
-          style={
-            uploadedPhoto
-              ? { backgroundImage: `url(${photo})` }
-              : { backgroundPosition: product.tilePosition || 'center' }
-          }
-          role="img"
-          aria-label={`${product.name} fabric`}
+        <img
+          src={src}
+          alt={`${product.name} ${product.colors.join(', ')} fabric pack`}
+          width="900"
+          height="1125"
+          loading="lazy"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+          className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
         />
         <div className="absolute left-4 top-4 rounded-sm bg-cream/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-950">
           {product.category}
@@ -98,4 +102,9 @@ const colorMap: Record<string, string> = {
   'Warm Grey': '#77706e',
   'Deep Charcoal Teal': '#34494b',
   'Light Stone Beige': '#b8aa99',
+  'Deep Teal': '#163f3d',
+  'Rich Brown': '#563a2d',
+  'Deep Navy': '#17233b',
+  'Forest Green': '#183a2a',
+  'Steel Blue': '#587087',
 };

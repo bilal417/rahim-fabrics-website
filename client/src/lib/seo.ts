@@ -245,8 +245,8 @@ export function productPageSeo(product: Product) {
   return {
     primaryKeyword,
     h1: product.name,
-    title: `${product.name} | Buy Online Lahore | Rahim Fabrics`,
-    description: `Buy ${product.name} online from Rahim Fabrics, New Azam Cloth Market Lahore.${retail} ${product.description} Also available wholesale by the thaan. Colours: ${product.colors.slice(0, 4).join(', ')}.`,
+    title: `${product.name} Price Lahore | Rahim Fabrics`,
+    description: `Buy ${product.name} online from Rahim Fabrics Lahore.${retail} ${product.fabricType}. Order premium unstitched fabric for retail or wholesale.`,
     keywords: `${primaryKeyword}, ${product.category} fabric Lahore, ${product.fabricType}, ${product.code}, buy fabric online Lahore, wholesale thaan`,
     path,
   };

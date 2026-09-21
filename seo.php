@@ -35,6 +35,7 @@ $type = 'website';
 if (preg_match('#^/products/([a-z0-9-]+)$#', $path, $matches)) {
     try {
         require __DIR__ . '/api/common.php';
+        ensureGraceMarjanProductImages();
         $statement = db()->prepare('SELECT * FROM products WHERE slug = ? LIMIT 1');
         $statement->execute([$matches[1]]);
         $product = $statement->fetch();
@@ -46,8 +47,8 @@ if (preg_match('#^/products/([a-z0-9-]+)$#', $path, $matches)) {
             $price = number_format((float) $product['retail_price'], 0);
             $unit = (string) ($product['retail_unit'] ?: 'meter');
             $page = [
-                'title' => $product['name'] . ' | Buy Online Lahore | Rahim Fabrics',
-                'description' => 'Buy ' . $product['name'] . ' online from Rahim Fabrics, New Azam Cloth Market Lahore. Retail from PKR ' . $price . '/' . $unit . '. ' . $product['description'],
+                'title' => $product['name'] . ' Price Lahore | Rahim Fabrics',
+                'description' => 'Buy ' . $product['name'] . ' online from Rahim Fabrics Lahore. ' . $product['fabric_type'] . ' from PKR ' . $price . '/' . $unit . '. Order premium unstitched fabric for retail or wholesale.',
                 'keywords' => $product['name'] . ' fabric Lahore, ' . $product['category'] . ' fabric Lahore, ' . $product['fabric_type'] . ', buy fabric online Lahore',
             ];
             $type = 'product';

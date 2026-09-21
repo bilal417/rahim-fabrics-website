@@ -30,6 +30,41 @@ export const EMAIL = 'info@rahimfabrics.site';
 /** Featured catalogue items available even when the API is offline. */
 export const products: Product[] = [
   {
+    _id: 'grace-marjan-wool',
+    slug: 'grace-marjan-wool',
+    name: 'Grace Marjan Wool',
+    code: 'GR-MW-01',
+    category: 'Winter',
+    fabricType: 'Premium Marjan Wool',
+    colors: ['Maroon', 'Deep Teal', 'Charcoal', 'Rich Brown', 'Deep Navy', 'Forest Green', 'Steel Blue'],
+    thaanLength: 'Retail suit pack',
+    suitsPerThaan: 1,
+    stock: 0,
+    stockMeters: 0,
+    retailPrice: 3499,
+    compareAtPrice: 4499,
+    bundleQty: 2,
+    bundlePrice: 6699,
+    retailUnit: 'suit',
+    minRetailQty: 1,
+    minWholesaleQty: 1,
+    images: [
+      '/images/products/grace-marjan-wool-maroon.webp',
+      '/images/products/grace-marjan-wool-deep-teal.webp',
+      '/images/products/grace-marjan-wool-charcoal.webp',
+      '/images/products/grace-marjan-wool-rich-brown.webp',
+      '/images/products/grace-marjan-wool-deep-navy.webp',
+      '/images/products/grace-marjan-wool-forest-green.webp',
+      '/images/products/grace-marjan-wool-steel-blue.webp',
+    ],
+    description:
+      'Grace Marjan Wool is a premium winter unstitched fabric for men, offering a soft feel, elegant fall and comfortable seasonal warmth. Available in seven sophisticated colours for everyday and occasion wear.',
+    featured: true,
+    retailOnly: true,
+    purchaseMode: 'checkout',
+    unlimitedStock: true,
+  },
+  {
     _id: 'grace-dunhill-self-textured-winter-wash-and-wear',
     slug: 'grace-dunhill-self-textured-winter-wash-and-wear',
     name: 'Grace Dunhill Self-Textured',
@@ -105,6 +140,12 @@ export const products: Product[] = [
     unlimitedStock: true,
   },
 ];
+
+export function productImageFallback(product: Pick<Product, 'code' | 'images'>): string {
+  if (product.code === 'GR-MW-01') return '/images/products/grace-marjan-wool-maroon.webp';
+  const first = product.images?.[0];
+  return (typeof first === 'string' ? first : first?.url) || '/logo.webp';
+}
 
 export const categories = [
   'All Fabrics',
