@@ -49,13 +49,13 @@ export const products: Product[] = [
     minRetailQty: 1,
     minWholesaleQty: 1,
     images: [
-      '/images/products/grace-marjan-wool-maroon.webp',
-      '/images/products/grace-marjan-wool-deep-teal.webp',
-      '/images/products/grace-marjan-wool-charcoal.webp',
-      '/images/products/grace-marjan-wool-rich-brown.webp',
-      '/images/products/grace-marjan-wool-deep-navy.webp',
-      '/images/products/grace-marjan-wool-forest-green.webp',
-      '/images/products/grace-marjan-wool-steel-blue.webp',
+      '/images/products/grace-marjan-wool-maroon.webp?v=2',
+      '/images/products/grace-marjan-wool-deep-teal.webp?v=2',
+      '/images/products/grace-marjan-wool-charcoal.webp?v=2',
+      '/images/products/grace-marjan-wool-rich-brown.webp?v=2',
+      '/images/products/grace-marjan-wool-deep-navy.webp?v=2',
+      '/images/products/grace-marjan-wool-forest-green.webp?v=2',
+      '/images/products/grace-marjan-wool-steel-blue.webp?v=2',
     ],
     description:
       'Grace Marjan Wool is a premium winter unstitched fabric for men, offering a soft feel, elegant fall and comfortable seasonal warmth. Available in seven sophisticated colours for everyday and occasion wear.',
@@ -142,7 +142,7 @@ export const products: Product[] = [
 ];
 
 export function productImageFallback(product: Pick<Product, 'code' | 'images'>): string {
-  if (product.code === 'GR-MW-01') return '/images/products/grace-marjan-wool-maroon.webp';
+  if (product.code === 'GR-MW-01') return '/images/products/grace-marjan-wool-maroon.webp?v=2';
   const first = product.images?.[0];
   return (typeof first === 'string' ? first : first?.url) || '/logo.webp';
 }

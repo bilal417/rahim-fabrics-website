@@ -329,13 +329,13 @@ function ensureGraceMarjanProductImages(): void
     }
 
     $urls = [
-        '/images/products/grace-marjan-wool-maroon.webp',
-        '/images/products/grace-marjan-wool-deep-teal.webp',
-        '/images/products/grace-marjan-wool-charcoal.webp',
-        '/images/products/grace-marjan-wool-rich-brown.webp',
-        '/images/products/grace-marjan-wool-deep-navy.webp',
-        '/images/products/grace-marjan-wool-forest-green.webp',
-        '/images/products/grace-marjan-wool-steel-blue.webp',
+        '/images/products/grace-marjan-wool-maroon.webp?v=2',
+        '/images/products/grace-marjan-wool-deep-teal.webp?v=2',
+        '/images/products/grace-marjan-wool-charcoal.webp?v=2',
+        '/images/products/grace-marjan-wool-rich-brown.webp?v=2',
+        '/images/products/grace-marjan-wool-deep-navy.webp?v=2',
+        '/images/products/grace-marjan-wool-forest-green.webp?v=2',
+        '/images/products/grace-marjan-wool-steel-blue.webp?v=2',
     ];
 
     $pdo->prepare('UPDATE products SET colors = ?, description = ? WHERE id = ?')->execute([
