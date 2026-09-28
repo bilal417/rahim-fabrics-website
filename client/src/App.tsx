@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import AnalyticsPageViews from './components/AnalyticsPageViews';
 import Layout from './components/Layout';
 import { CartProvider } from './context/CartContext';
 import Home from './pages/Home';
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <CartProvider>
       <BrowserRouter>
+        <AnalyticsPageViews />
         <Suspense fallback={<div className="min-h-[45vh] bg-cream" aria-label="Loading page" />}>
           <Routes>
             <Route element={<Layout />}>

@@ -2,6 +2,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Seo from '../components/Seo';
 import { api } from '../lib/api';
+import { trackPurchase } from '../lib/analytics';
 import { formatPkr, type Order } from '../types';
 
 export default function OrderSuccess() {
@@ -16,6 +17,10 @@ export default function OrderSuccess() {
       .then((r) => setOrder(r.data))
       .catch(() => undefined);
   }, [order, orderNumber]);
+
+  useEffect(() => {
+    if (order) trackPurchase(order);
+  }, [order]);
 
   return (
     <>

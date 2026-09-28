@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { calculateItemTotal, type CartChannel, type CartItem, type Product } from '../types';
+import { trackAddToCart } from '../lib/analytics';
 
 const STORAGE_KEY = 'rf_cart_v1';
 
@@ -75,6 +76,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return 'Cart already has items from another pricing channel. Clear the cart or switch channel first.';
     }
 
+    trackAddToCart(product, nextChannel, amount);
     setChannelState(nextChannel);
     setItems((current) => {
       const existing = current.find((item) => item.productId === product._id && item.channel === nextChannel);

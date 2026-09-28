@@ -2,6 +2,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { FormEvent, useMemo, useState } from 'react';
 import Seo, { Breadcrumbs } from '../components/Seo';
 import { api } from '../lib/api';
+import { trackLead } from '../lib/analytics';
 import { whatsappUrl } from '../lib/data';
 import { pageSeo, SITE_URL, webPageSchema } from '../lib/seo';
 
@@ -36,8 +37,10 @@ export default function Wholesale() {
     const payload = Object.fromEntries(form);
     try {
       await api.post('/inquiries', payload);
+      trackLead('wholesale_form', { shop_type: payload.shopType, city: payload.city });
       setSent(true);
     } catch {
+      trackLead('wholesale_whatsapp_fallback', { shop_type: payload.shopType, city: payload.city });
       window.open(
         whatsappUrl(
           `Wholesale registration — Business: ${payload.businessName}, Owner: ${payload.customerName}, City: ${payload.city}, Phone: ${payload.phone}, Shop type: ${payload.shopType}, Monthly requirement: ${payload.monthlyRequirement}`,

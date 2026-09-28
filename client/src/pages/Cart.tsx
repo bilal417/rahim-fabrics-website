@@ -1,10 +1,19 @@
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useCart } from '../context/CartContext';
 import { calculateItemTotal, formatPkr } from '../types';
+import { trackViewCart } from '../lib/analytics';
 
 export default function Cart() {
   const { channel, items, subtotal, setChannel, updateQty, removeItem, clear } = useCart();
+  const tracked = useRef(false);
+
+  useEffect(() => {
+    if (!items.length || tracked.current) return;
+    tracked.current = true;
+    trackViewCart(items);
+  }, [items]);
 
   return (
     <>

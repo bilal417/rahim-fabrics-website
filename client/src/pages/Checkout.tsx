@@ -1,8 +1,9 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useCart } from '../context/CartContext';
 import { api } from '../lib/api';
+import { trackBeginCheckout } from '../lib/analytics';
 import { calculateItemTotal, formatPkr, type Order, type PaymentMethod } from '../types';
 
 type BankDetails = {
@@ -21,6 +22,7 @@ export default function Checkout() {
   const [billingSame, setBillingSame] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const checkoutTracked = useRef(false);
 
   useEffect(() => {
     api
@@ -28,6 +30,12 @@ export default function Checkout() {
       .then((r) => setBankDetails(r.data?.bankDetails || {}))
       .catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    if (!items.length || checkoutTracked.current) return;
+    checkoutTracked.current = true;
+    trackBeginCheckout(items);
+  }, [items]);
 
   if (!items.length) {
     return (

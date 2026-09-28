@@ -15,6 +15,7 @@ import {
   seasonalCollections,
   whatsappUrl,
 } from '../lib/data';
+import { trackLead } from '../lib/analytics';
 
 const links = [
   ['/', 'Home'],
@@ -109,6 +110,7 @@ export default function Layout() {
               href={`https://wa.me/${WHATSAPP}`}
               target="_blank"
               rel="noreferrer"
+              onClick={() => trackLead('header_whatsapp')}
               aria-label="Chat with Rahim Fabrics on WhatsApp"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-emerald-950 px-4 text-xs font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-900"
             >
@@ -342,6 +344,7 @@ export default function Layout() {
         href={whatsappUrl('Assalam-o-Alaikum, I need fabric details for an order.')}
         target="_blank"
         rel="noreferrer"
+        onClick={() => trackLead('floating_whatsapp')}
         className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-xl transition hover:scale-105"
       >
         <MessageCircle />
