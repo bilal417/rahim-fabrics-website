@@ -1,9 +1,10 @@
 import { ArrowLeft, Check, MessageCircle, PackageCheck, Ruler, Share2, ShoppingBag } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Seo, { Breadcrumbs } from '../components/Seo';
 import { useCart } from '../context/CartContext';
 import { api } from '../lib/api';
+import { trackLead, trackViewItem } from '../lib/analytics';
 import { productImageFallback, products, whatsappUrl } from '../lib/data';
 import { productPageSeo, productSchema, webPageSchema } from '../lib/seo';
 import { formatPkr, type Product } from '../types';
@@ -19,6 +20,7 @@ export default function ProductDetail() {
   const [retailQty, setRetailQty] = useState(2);
   const [wholesaleQty, setWholesaleQty] = useState(1);
   const [message, setMessage] = useState('');
+  const trackedProduct = useRef<string | null>(null);
 
   useEffect(() => {
     api
@@ -31,6 +33,12 @@ export default function ProductDetail() {
     if (!product) return;
     setRetailQty(Math.max(1, product.minRetailQty || 2));
     setWholesaleQty(Math.max(1, product.minWholesaleQty || 1));
+  }, [product]);
+
+  useEffect(() => {
+    if (!product || trackedProduct.current === product.code) return;
+    trackedProduct.current = product.code;
+    trackViewItem(product);
   }, [product]);
 
   const crumbs = useMemo(
@@ -196,6 +204,7 @@ export default function ProductDetail() {
                       href={whatsappUrl(`Assalam-o-Alaikum, I want to order ${product.name} (${product.code}).`)}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={() => trackLead('product_whatsapp_order', { item_id: product.code })}
                       className="btn-dark mt-4 w-full"
                     >
                       <MessageCircle size={17} /> Order on WhatsApp
@@ -278,6 +287,7 @@ export default function ProductDetail() {
                 )}
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => trackLead('product_whatsapp_help', { item_id: product.code })}
                 className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-emerald-900"
               >
                 <MessageCircle size={16} /> Prefer WhatsApp help?
