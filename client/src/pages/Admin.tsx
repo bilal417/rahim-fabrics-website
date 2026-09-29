@@ -21,7 +21,11 @@ type Category = { _id?: string; name: string; slug?: string };
 
 export function AdminLogin() {
   const nav = useNavigate();
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() =>
+    new URLSearchParams(window.location.search).get('session') === 'expired'
+      ? 'Your admin session expired. Please sign in again.'
+      : '',
+  );
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
