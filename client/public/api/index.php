@@ -31,6 +31,7 @@ try {
         ensureGraceDunhillProduct();
         ensureGraceMarjanProductImages();
         ensureCurrentCatalogueCheckout();
+        ensureTwoHorseBoskiProduct();
     }
     if (str_starts_with($route, '/orders') || $route === '/checkout/payment-options') {
         ensureOrderCheckoutColumns();
@@ -121,6 +122,9 @@ try {
         $suits = max(1, (int) ($data['suitsPerThaan'] ?? 0));
         $stock = max(0, (int) ($data['stock'] ?? 0));
         $stockMeters = max(0, (int) ($data['stockMeters'] ?? 0));
+        $meterPrice = max(0, (float) ($data['meterPrice'] ?? 0));
+        $meterPrice = $meterPrice > 0 ? $meterPrice : null;
+        $minMeterQty = max(1, (int) ($data['minMeterQty'] ?? 1));
         $retailPrice = max(0, (float) ($data['retailPrice'] ?? 0));
         $compareAtPrice = (float) ($data['compareAtPrice'] ?? 0);
         $compareAtPrice = $compareAtPrice > 0 ? $compareAtPrice : null;
@@ -157,11 +161,11 @@ try {
                     foreach ($newImages as $url) removeLocalImage($url);
                     fail('Product not found.', 404);
                 }
-                $statement = $pdo->prepare('UPDATE products SET name=?, slug=?, code=?, category=?, fabric_type=?, colors=?, thaan_length=?, suits_per_thaan=?, stock=?, stock_meters=?, retail_price=?, compare_at_price=?, bundle_qty=?, bundle_price=?, wholesale_price=?, retail_unit=?, min_retail_qty=?, min_wholesale_qty=?, retail_only=?, unlimited_stock=?, purchase_mode=?, description=?, featured=? WHERE id=?');
-                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $retailPrice, $compareAtPrice, $bundleQty, $bundlePrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $retailOnly, $unlimitedStock, $purchaseMode, $description, $featured, $id]);
+                $statement = $pdo->prepare('UPDATE products SET name=?, slug=?, code=?, category=?, fabric_type=?, colors=?, thaan_length=?, suits_per_thaan=?, stock=?, stock_meters=?, meter_price=?, min_meter_qty=?, retail_price=?, compare_at_price=?, bundle_qty=?, bundle_price=?, wholesale_price=?, retail_unit=?, min_retail_qty=?, min_wholesale_qty=?, retail_only=?, unlimited_stock=?, purchase_mode=?, description=?, featured=? WHERE id=?');
+                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $meterPrice, $minMeterQty, $retailPrice, $compareAtPrice, $bundleQty, $bundlePrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $retailOnly, $unlimitedStock, $purchaseMode, $description, $featured, $id]);
             } else {
-                $statement = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, retail_price, compare_at_price, bundle_qty, bundle_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, retail_only, unlimited_stock, purchase_mode, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $retailPrice, $compareAtPrice, $bundleQty, $bundlePrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $retailOnly, $unlimitedStock, $purchaseMode, $description, $featured]);
+                $statement = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, meter_price, min_meter_qty, retail_price, compare_at_price, bundle_qty, bundle_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, retail_only, unlimited_stock, purchase_mode, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                $statement->execute([$name, slugify($name), $code, $category, $fabricType, json_encode($colors), $thaanLength, $suits, $stock, $stockMeters, $meterPrice, $minMeterQty, $retailPrice, $compareAtPrice, $bundleQty, $bundlePrice, $wholesalePrice, $retailUnit, $minRetailQty, $minWholesaleQty, $retailOnly, $unlimitedStock, $purchaseMode, $description, $featured]);
                 $id = (int) $pdo->lastInsertId();
             }
             if ($newImages) {
@@ -359,9 +363,19 @@ try {
                 $productId = (int) $product['id'];
 
                 if ($channel === 'retail') {
-                    $unit = (string) ($product['retail_unit'] ?? 'meter');
-                    $unitPrice = (float) $product['retail_price'];
-                    $minQty = max(1, (int) ($product['min_retail_qty'] ?? 1));
+                    $primaryUnit = (string) ($product['retail_unit'] ?? 'meter');
+                    $requestedUnit = trim((string) ($item['unit'] ?? ''));
+                    if ($requestedUnit === 'meter' && (float) ($product['meter_price'] ?? 0) > 0) {
+                        $unit = 'meter';
+                        $unitPrice = (float) $product['meter_price'];
+                        $minQty = max(1, (int) ($product['min_meter_qty'] ?? 1));
+                    } elseif ($requestedUnit === '' || $requestedUnit === $primaryUnit) {
+                        $unit = $primaryUnit;
+                        $unitPrice = (float) $product['retail_price'];
+                        $minQty = max(1, (int) ($product['min_retail_qty'] ?? 1));
+                    } else {
+                        fail('The selected purchase unit is not available for ' . $product['name'] . '.', 422);
+                    }
                     if ($unit === 'suit' && floor($qty) !== $qty) {
                         fail($product['name'] . ' can only be ordered in whole suits.', 422);
                     }
@@ -382,18 +396,20 @@ try {
                     if ($qty < $minQty) {
                         fail($product['name'] . ' requires at least ' . $minQty . ' thaan(s).', 422);
                     }
-                    if ($qty > (int) $product['stock']) {
-                        fail('Not enough wholesale stock for ' . $product['name'] . '.', 422);
+                    if (!isUnlimitedStockProduct($product)) {
+                        if ($qty > (int) $product['stock']) {
+                            fail('Not enough wholesale stock for ' . $product['name'] . '.', 422);
+                        }
+                        $pdo->prepare('UPDATE products SET stock = stock - ? WHERE id = ?')
+                            ->execute([(int) $qty, $productId]);
                     }
-                    $pdo->prepare('UPDATE products SET stock = stock - ? WHERE id = ?')
-                        ->execute([(int) $qty, $productId]);
                 }
 
                 if ($unitPrice <= 0) {
                     fail('Pricing is not configured for ' . $product['name'] . '.', 422);
                 }
 
-                $lineTotal = $channel === 'retail'
+                $lineTotal = $channel === 'retail' && $unit === 'suit'
                     ? retailLineTotal($product, $qty, $unitPrice)
                     : round($unitPrice * $qty, 2);
                 $subtotal += $lineTotal;

@@ -78,6 +78,7 @@ export default function Checkout() {
       JSON.stringify(items.map((item) => ({
         productId: Number.isFinite(Number(item.productId)) ? Number(item.productId) : item.productId,
         qty: item.qty,
+        unit: item.unit,
       }))),
     );
     const paymentSlip = form.get('paymentSlip');

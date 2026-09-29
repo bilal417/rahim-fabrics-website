@@ -27,6 +27,15 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="absolute left-4 top-4 rounded-sm bg-cream/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-950">
           {product.category}
         </div>
+        <div className="absolute right-4 top-4 overflow-hidden rounded border border-white/70 bg-emerald-950 shadow-lg">
+          <img
+            src="/logo-small.webp"
+            alt="Rahim Fabrics"
+            width="84"
+            height="56"
+            className="h-auto w-[72px]"
+          />
+        </div>
         <div className="absolute bottom-4 right-4 grid h-10 w-10 place-items-center rounded-full bg-white text-emerald-900 opacity-0 transition group-hover:opacity-100">
           <ArrowUpRight size={18} />
         </div>
@@ -43,6 +52,11 @@ export default function ProductCard({ product }: { product: Product }) {
           </span>
         </div>
         <div className="mt-3 space-y-1 text-sm">
+          {product.meterPrice ? (
+            <div className="font-semibold text-emerald-950">
+              {formatPkr(product.meterPrice)} <span className="text-xs font-medium text-black/40">/ metre</span>
+            </div>
+          ) : null}
           {product.compareAtPrice ? (
             <div className="text-xs text-black/35 line-through">{formatPkr(product.compareAtPrice)}</div>
           ) : null}
@@ -54,7 +68,8 @@ export default function ProductCard({ product }: { product: Product }) {
             <div className="text-xs font-semibold text-gold-500">
               {product.bundleQty} suits · {formatPkr(product.bundlePrice)}
             </div>
-          ) : !product.retailOnly ? (
+          ) : null}
+          {!product.retailOnly ? (
             <div className="text-xs text-black/45">
               Wholesale {formatPkr(product.wholesalePrice || 0)} / thaan
             </div>

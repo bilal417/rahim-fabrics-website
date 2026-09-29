@@ -139,6 +139,22 @@ export function productSchema(product: Product) {
     },
   ];
 
+  if (product.meterPrice && product.retailUnit !== 'meter') {
+    offers.push({
+      '@type': 'Offer',
+      url: absoluteUrl(path),
+      priceCurrency: 'PKR',
+      price: Number(product.meterPrice),
+      availability:
+        product.unlimitedStock || (product.stockMeters ?? 0) > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/PreOrder',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@id': `${SITE_URL}/#organization` },
+      description: 'Retail price per metre',
+    });
+  }
+
   if (!product.retailOnly) {
     offers.push({
       '@type': 'Offer',

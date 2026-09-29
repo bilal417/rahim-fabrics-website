@@ -185,6 +185,8 @@ function productJson(array $row, ?array $images = null): array
         'suitsPerThaan' => (int) $row['suits_per_thaan'],
         'stock' => (int) $row['stock'],
         'stockMeters' => (int) ($row['stock_meters'] ?? 0),
+        'meterPrice' => isset($row['meter_price']) ? (float) $row['meter_price'] : null,
+        'minMeterQty' => (int) ($row['min_meter_qty'] ?? 1),
         'retailPrice' => (float) ($row['retail_price'] ?? 0),
         'compareAtPrice' => isset($row['compare_at_price']) ? (float) $row['compare_at_price'] : null,
         'bundleQty' => isset($row['bundle_qty']) ? (int) $row['bundle_qty'] : null,
@@ -236,6 +238,8 @@ function ensureProductOfferColumns(): void
         ->fetchAll(PDO::FETCH_COLUMN);
     $existing = array_fill_keys(array_map('strval', $columns), true);
     $definitions = [
+        'meter_price' => 'DECIMAL(12,2) NULL DEFAULT NULL AFTER stock_meters',
+        'min_meter_qty' => 'INT UNSIGNED NOT NULL DEFAULT 1 AFTER meter_price',
         'compare_at_price' => 'DECIMAL(12,2) NULL DEFAULT NULL AFTER retail_price',
         'bundle_qty' => 'INT UNSIGNED NULL DEFAULT NULL AFTER compare_at_price',
         'bundle_price' => 'DECIMAL(12,2) NULL DEFAULT NULL AFTER bundle_qty',
@@ -248,6 +252,77 @@ function ensureProductOfferColumns(): void
         if (!isset($existing[$column])) {
             $pdo->exec("ALTER TABLE products ADD COLUMN {$column} {$definition}");
         }
+    }
+}
+
+function ensureTwoHorseBoskiProduct(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $pdo->exec("CREATE TABLE IF NOT EXISTS app_migrations (
+        migration_key VARCHAR(120) NOT NULL,
+        applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (migration_key)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    $pdo->beginTransaction();
+    try {
+        $claim = $pdo->prepare('INSERT IGNORE INTO app_migrations (migration_key) VALUES (?)');
+        $claim->execute(['2026-09-29-two-horse-boski']);
+        if ($claim->rowCount() === 0) {
+            $pdo->rollBack();
+            return;
+        }
+
+        $find = $pdo->prepare('SELECT id FROM products WHERE code = ? OR slug = ? LIMIT 1 FOR UPDATE');
+        $find->execute(['THB-SF-24', 'two-horse-boski-by-shahji-fabrics']);
+        $productId = (int) ($find->fetchColumn() ?: 0);
+
+        if ($productId === 0) {
+            $insert = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, meter_price, min_meter_qty, retail_price, compare_at_price, bundle_qty, bundle_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, retail_only, unlimited_stock, purchase_mode, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $insert->execute([
+                'Two Horse Boski by Shahji Fabrics',
+                'two-horse-boski-by-shahji-fabrics',
+                'THB-SF-24',
+                'Boski',
+                'Premium Boski',
+                json_encode(['Cream', 'Off White']),
+                '24 metres per thaan',
+                4,
+                0,
+                0,
+                400.0,
+                1,
+                2000.0,
+                null,
+                2,
+                3500.0,
+                9600.0,
+                'suit',
+                1,
+                1,
+                0,
+                1,
+                'checkout',
+                'Two Horse Boski by Shahji Fabrics is a refined cream and off-white unstitched men\'s fabric with a smooth finish, graceful fall and timeless formal look. An elegant choice for weddings, Eid and classic shalwar qameez. Order by the metre at PKR 400, choose one 5-metre suit for PKR 2,000, save with two suits for PKR 3,500, or buy a complete 24-metre thaan.',
+                1,
+            ]);
+            $productId = (int) $pdo->lastInsertId();
+            $image = $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, 0)');
+            $image->execute([$productId, '/images/products/two-horse-boski-cream-website-v1.png']);
+        }
+
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
     }
 }
 

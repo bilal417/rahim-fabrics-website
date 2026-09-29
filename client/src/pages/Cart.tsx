@@ -57,7 +57,7 @@ export default function Cart() {
             <div className="mt-10 grid gap-8 lg:grid-cols-[1.4fr_.8fr]">
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={item.productId} className="flex flex-col gap-4 bg-white p-5 shadow-soft sm:flex-row sm:items-center">
+                  <div key={`${item.productId}-${item.unit}`} className="flex flex-col gap-4 bg-white p-5 shadow-soft sm:flex-row sm:items-center">
                     <div
                       className="h-24 w-full bg-cover bg-center sm:w-24"
                       style={{ backgroundImage: `url(${item.image || '/images/fabric-collection.png'})` }}
@@ -78,13 +78,13 @@ export default function Cart() {
                             type="number"
                             min={1}
                             value={item.qty}
-                            onChange={(e) => updateQty(item.productId, Number(e.target.value) || 1)}
+                            onChange={(e) => updateQty(item.productId, item.unit, Number(e.target.value) || 1)}
                             className="field mt-1 w-24"
                           />
                         </label>
                         <button
                           type="button"
-                          onClick={() => removeItem(item.productId)}
+                          onClick={() => removeItem(item.productId, item.unit)}
                           className="mt-5 text-xs font-bold uppercase tracking-wider text-red-700"
                         >
                           Remove

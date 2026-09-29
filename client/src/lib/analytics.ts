@@ -58,12 +58,18 @@ export function trackViewItem(product: Product) {
   });
 }
 
-export function trackAddToCart(product: Product, channel: 'retail' | 'wholesale', quantity: number) {
-  const price = channel === 'wholesale' ? product.wholesalePrice : product.retailPrice;
+export function trackAddToCart(
+  product: Product,
+  channel: 'retail' | 'wholesale',
+  quantity: number,
+  selectedPrice?: number,
+  selectedUnit?: string,
+) {
+  const price = selectedPrice ?? (channel === 'wholesale' ? product.wholesalePrice : product.retailPrice);
   sendEvent('add_to_cart', {
     currency: 'PKR',
     value: Number(price || 0) * quantity,
-    items: [productAnalyticsItem(product, quantity, channel)],
+    items: [{ ...productAnalyticsItem(product, quantity, channel), price: Number(price || 0), item_variant: selectedUnit }],
   });
 }
 

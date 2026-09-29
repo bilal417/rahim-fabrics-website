@@ -17,9 +17,9 @@ type CartContextValue = {
   count: number;
   subtotal: number;
   setChannel: (channel: CartChannel) => void;
-  addProduct: (product: Product, channel: CartChannel, qty?: number) => string | null;
-  updateQty: (productId: string, qty: number) => void;
-  removeItem: (productId: string) => void;
+  addProduct: (product: Product, channel: CartChannel, qty?: number, unitOverride?: 'meter' | 'suit') => string | null;
+  updateQty: (productId: string, unit: CartItem['unit'], qty: number) => void;
+  removeItem: (productId: string, unit: CartItem['unit']) => void;
   clear: () => void;
 };
 
@@ -58,16 +58,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((current) => current.filter((item) => item.channel === next));
   };
 
-  const addProduct = (product: Product, nextChannel: CartChannel, qty?: number) => {
+  const addProduct = (
+    product: Product,
+    nextChannel: CartChannel,
+    qty?: number,
+    unitOverride?: 'meter' | 'suit',
+  ) => {
     if (!product._id) return 'Product is missing an id.';
-    const unitPrice =
-      nextChannel === 'retail' ? Number(product.retailPrice || 0) : Number(product.wholesalePrice || 0);
+    const isMeterOption = nextChannel === 'retail' && unitOverride === 'meter';
+    const unitPrice = nextChannel === 'wholesale'
+      ? Number(product.wholesalePrice || 0)
+      : isMeterOption
+        ? Number(product.meterPrice || 0)
+        : Number(product.retailPrice || 0);
     if (unitPrice <= 0) return 'Price is not available for this product yet.';
 
-    const unit = nextChannel === 'retail' ? product.retailUnit || 'meter' : 'thaan';
+    const unit = nextChannel === 'retail'
+      ? (unitOverride || product.retailUnit || 'meter')
+      : 'thaan';
     const minQty =
       nextChannel === 'retail'
-        ? Math.max(1, product.minRetailQty || 1)
+        ? Math.max(1, isMeterOption ? product.minMeterQty || 1 : product.minRetailQty || 1)
         : Math.max(1, product.minWholesaleQty || 1);
     const amount = qty ?? minQty;
     if (amount < minQty) return `Minimum quantity is ${minQty} ${unit}.`;
@@ -76,19 +87,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return 'Cart already has items from another pricing channel. Clear the cart or switch channel first.';
     }
 
-    trackAddToCart(product, nextChannel, amount);
+    trackAddToCart(product, nextChannel, amount, unitPrice, unit);
     setChannelState(nextChannel);
     setItems((current) => {
-      const existing = current.find((item) => item.productId === product._id && item.channel === nextChannel);
+      const existing = current.find(
+        (item) => item.productId === product._id && item.channel === nextChannel && item.unit === unit,
+      );
       if (existing) {
         return current.map((item) =>
-          item.productId === product._id
+          item.productId === product._id && item.channel === nextChannel && item.unit === unit
             ? {
                 ...item,
                 qty: item.qty + amount,
                 unitPrice,
-                bundleQty: nextChannel === 'retail' ? product.bundleQty : undefined,
-                bundlePrice: nextChannel === 'retail' ? product.bundlePrice : undefined,
+                bundleQty: nextChannel === 'retail' && unit === 'suit' ? product.bundleQty : undefined,
+                bundlePrice: nextChannel === 'retail' && unit === 'suit' ? product.bundlePrice : undefined,
               }
             : item,
         );
@@ -105,24 +118,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
           unit,
           qty: amount,
           unitPrice,
-          bundleQty: nextChannel === 'retail' ? product.bundleQty : undefined,
-          bundlePrice: nextChannel === 'retail' ? product.bundlePrice : undefined,
+          bundleQty: nextChannel === 'retail' && unit === 'suit' ? product.bundleQty : undefined,
+          bundlePrice: nextChannel === 'retail' && unit === 'suit' ? product.bundlePrice : undefined,
         },
       ];
     });
     return null;
   };
 
-  const updateQty = (productId: string, qty: number) => {
+  const updateQty = (productId: string, unit: CartItem['unit'], qty: number) => {
     setItems((current) =>
       current
-        .map((item) => (item.productId === productId ? { ...item, qty } : item))
+        .map((item) => (item.productId === productId && item.unit === unit ? { ...item, qty } : item))
         .filter((item) => item.qty > 0),
     );
   };
 
-  const removeItem = (productId: string) => {
-    setItems((current) => current.filter((item) => item.productId !== productId));
+  const removeItem = (productId: string, unit: CartItem['unit']) => {
+    setItems((current) => current.filter((item) => item.productId !== productId || item.unit !== unit));
   };
 
   const clear = () => setItems([]);

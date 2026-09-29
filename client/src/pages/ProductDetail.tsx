@@ -17,6 +17,7 @@ export default function ProductDetail() {
     products.find((p) => p.slug === slug || p._id === slug),
   );
   const [activeImage, setActiveImage] = useState(0);
+  const [meterQty, setMeterQty] = useState(1);
   const [retailQty, setRetailQty] = useState(2);
   const [wholesaleQty, setWholesaleQty] = useState(1);
   const [message, setMessage] = useState('');
@@ -31,6 +32,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (!product) return;
+    setMeterQty(Math.max(1, product.minMeterQty || 1));
     setRetailQty(Math.max(1, product.minRetailQty || 2));
     setWholesaleQty(Math.max(1, product.minWholesaleQty || 1));
   }, [product]);
@@ -91,6 +93,16 @@ export default function ProductDetail() {
     nav('/cart');
   }
 
+  function addMeter() {
+    const error = addProduct(product!, 'retail', meterQty, 'meter');
+    if (error) {
+      setMessage(error);
+      return;
+    }
+    setMessage('Added metres to retail cart.');
+    nav('/cart');
+  }
+
   function addWholesale() {
     const error = addProduct(product!, 'wholesale', wholesaleQty);
     if (error) {
@@ -131,8 +143,8 @@ export default function ProductDetail() {
             <ArrowLeft size={16} /> Back to shop
           </Link>
           <div className="grid gap-12 lg:grid-cols-[1.08fr_.92fr]">
-            <div className={`grid gap-3 ${urls.length > 1 ? 'sm:grid-cols-[1fr_110px]' : ''}`}>
-              <div className="min-h-[540px] bg-[#eee4d3]">
+            <div className={`grid items-start gap-3 ${urls.length > 1 ? 'sm:grid-cols-[minmax(0,1fr)_110px]' : ''}`}>
+              <div className="relative aspect-[4/5] self-start overflow-hidden bg-[#eee4d3]">
                 <img
                   src={photo || fallbackImage}
                   alt={`${product.name} ${product.colors[activeImage] || 'fabric'} product pack`}
@@ -143,18 +155,27 @@ export default function ProductDetail() {
                   onError={(event) => {
                     if (!event.currentTarget.src.endsWith(fallbackImage)) event.currentTarget.src = fallbackImage;
                   }}
-                  className="h-full min-h-[540px] w-full object-contain"
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
+                <div className="absolute right-4 top-4 overflow-hidden rounded-md border border-white/70 bg-emerald-950 shadow-xl">
+                  <img
+                    src="/logo-small.webp"
+                    alt="Rahim Fabrics"
+                    width="112"
+                    height="75"
+                    className="h-auto w-24 sm:w-28"
+                  />
+                </div>
               </div>
               {urls.length > 1 && (
-                <div className="grid grid-cols-3 gap-3 sm:grid-cols-1">
+                <div className="grid grid-cols-3 gap-3 sm:max-h-[min(75vh,790px)] sm:grid-cols-1 sm:overflow-y-auto sm:pr-1">
                   {urls.map((url, i) => (
                     <button
                       aria-label={`View ${product.name} image ${i + 1}`}
                       key={url}
                       type="button"
                       onClick={() => setActiveImage(i)}
-                      className={`min-h-28 overflow-hidden bg-[#eee4d3] ${i === activeImage ? 'border-2 border-gold-500' : ''}`}
+                      className={`aspect-[4/5] overflow-hidden bg-[#eee4d3] ${i === activeImage ? 'border-2 border-gold-500' : 'border border-transparent'}`}
                     >
                       <img
                         src={url}
@@ -166,7 +187,7 @@ export default function ProductDetail() {
                         onError={(event) => {
                           if (!event.currentTarget.src.endsWith(fallbackImage)) event.currentTarget.src = fallbackImage;
                         }}
-                        className="h-full min-h-28 w-full object-cover"
+                        className="h-full w-full object-cover"
                       />
                     </button>
                   ))}
@@ -182,9 +203,32 @@ export default function ProductDetail() {
               </h1>
               <p className="mt-6 leading-8 text-black/55">{product.description}</p>
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                <div className={`rounded-sm border border-emerald-950/10 bg-cream p-5 ${product.retailOnly ? 'sm:col-span-2' : ''}`}>
-                  <p className="text-xs font-bold uppercase tracking-wider text-black/40">Retail price</p>
+              <div className={`mt-8 grid gap-4 ${product.meterPrice ? 'lg:grid-cols-3' : 'sm:grid-cols-2'}`}>
+                {product.meterPrice ? (
+                  <div className="rounded-sm border border-emerald-950/10 bg-white p-5">
+                    <p className="text-xs font-bold uppercase tracking-wider text-black/40">By the metre</p>
+                    <p className="mt-2 font-display text-3xl font-semibold text-emerald-950">
+                      {formatPkr(product.meterPrice)}
+                    </p>
+                    <p className="mt-1 text-sm text-black/45">per metre</p>
+                    <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-black/40">
+                      Quantity (metres)
+                      <input
+                        type="number"
+                        min={product.minMeterQty || 1}
+                        step="1"
+                        value={meterQty}
+                        onChange={(e) => setMeterQty(Number(e.target.value) || 1)}
+                        className="field mt-2"
+                      />
+                    </label>
+                    <button type="button" onClick={addMeter} className="btn-outline mt-4 w-full border-emerald-950 text-emerald-950">
+                      Add metres to cart
+                    </button>
+                  </div>
+                ) : null}
+                <div className={`rounded-sm border border-emerald-950/10 bg-cream p-5 ${product.retailOnly && !product.meterPrice ? 'sm:col-span-2' : ''}`}>
+                  <p className="text-xs font-bold uppercase tracking-wider text-black/40">{retailUnit === 'suit' ? 'Unstitched suit' : 'Retail price'}</p>
                   {product.compareAtPrice ? (
                     <p className="mt-2 text-sm font-semibold text-black/35 line-through">
                       {formatPkr(product.compareAtPrice)}
@@ -222,7 +266,7 @@ export default function ProductDetail() {
                     />
                   </label>
                   <button type="button" onClick={addRetail} className="btn-dark mt-4 w-full">
-                    <ShoppingBag size={17} /> Add retail to cart
+                    <ShoppingBag size={17} /> Add {retailUnit} to cart
                   </button>
                     </>
                   )}
@@ -261,9 +305,9 @@ export default function ProductDetail() {
                   <Spec
                     icon={<Check />}
                     label="Retail stock"
-                    value={`${product.stockMeters ?? 0} metres`}
+                    value={product.unlimitedStock ? 'Available' : `${product.stockMeters ?? 0} metres`}
                   />
-                  <Spec icon={<Share2 />} label="Wholesale stock" value={`${product.stock} thaans`} />
+                  <Spec icon={<Share2 />} label="Wholesale stock" value={product.unlimitedStock ? 'Available' : `${product.stock} thaans`} />
                 </div>
               </div>}
 

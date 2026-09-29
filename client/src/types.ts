@@ -14,6 +14,8 @@ export interface Product {
   suitsPerThaan: number;
   stock: number;
   stockMeters?: number;
+  meterPrice?: number;
+  minMeterQty?: number;
   retailPrice?: number;
   compareAtPrice?: number;
   bundleQty?: number;

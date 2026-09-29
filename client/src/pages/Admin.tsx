@@ -308,6 +308,8 @@ export function AdminDashboard() {
                 <AdminInput name="suitsPerThaan" placeholder="Suits per thaan" type="number" value={editing?.suitsPerThaan} />
                 <AdminInput name="stock" placeholder="Wholesale stock (thaans)" type="number" value={editing?.stock} />
                 <AdminInput name="stockMeters" placeholder="Retail stock (metres)" type="number" value={editing?.stockMeters ?? 0} />
+                <AdminInput name="meterPrice" placeholder="Optional separate price / metre (PKR)" type="number" value={editing?.meterPrice ?? 0} />
+                <AdminInput name="minMeterQty" placeholder="Minimum metre quantity" type="number" value={editing?.minMeterQty ?? 1} />
                 <AdminInput name="retailPrice" placeholder="Retail price (PKR)" type="number" value={editing?.retailPrice ?? 0} />
                 <AdminInput name="compareAtPrice" placeholder="Compare-at price (optional; enter 0 to hide)" type="number" value={editing?.compareAtPrice ?? 0} />
                 <AdminCheckbox
