@@ -153,8 +153,8 @@ function FeaturedProduct({ product }: { product: Product }) {
   const image = (typeof firstImage === 'string' ? firstImage : firstImage?.url) || productImageFallback(product);
 
   return (
-    <section className="bg-emerald-950 px-5 py-14 text-white md:px-10 md:py-20 lg:px-16">
-      <div className="mx-auto grid max-w-[1320px] overflow-hidden border border-white/10 bg-white/[.04] lg:grid-cols-[.9fr_1.1fr]">
+    <section className="bg-[#f3ecdf] px-5 py-14 text-emerald-950 md:px-10 md:py-20 lg:px-16">
+      <div className="mx-auto grid max-w-[1320px] overflow-hidden border border-emerald-950/10 bg-[#fffdf8] shadow-soft lg:grid-cols-[.9fr_1.1fr]">
         <Link to={`/products/${product.slug || product._id}`} className="group relative min-h-[430px] overflow-hidden bg-[#e9e0d0] lg:min-h-[620px]">
           <img
             src={image}
@@ -170,13 +170,13 @@ function FeaturedProduct({ product }: { product: Product }) {
 
         <div className="flex items-center px-7 py-12 md:px-12 lg:px-16">
           <div className="w-full">
-            <p className="text-[11px] font-bold uppercase tracking-[.2em] text-gold-400">
+            <p className="text-[11px] font-bold uppercase tracking-[.2em] text-gold-600">
               {product.category} · {product.code}
             </p>
             <h2 className="mt-4 font-display text-4xl font-semibold leading-tight md:text-5xl">
               {product.name}
             </h2>
-            <p className="mt-6 max-w-2xl leading-8 text-white/60">{product.description}</p>
+            <p className="mt-6 max-w-2xl leading-8 text-black/55">{product.description}</p>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {product.meterPrice ? (
@@ -201,7 +201,10 @@ function FeaturedProduct({ product }: { product: Product }) {
               <Link to={`/products/${product.slug || product._id}`} className="btn-primary">
                 View featured product <ArrowRight size={17} />
               </Link>
-              <Link to="/catalogue" className="btn-outline border-white/25 text-white hover:bg-white/10">
+              <Link
+                to="/catalogue"
+                className="inline-flex items-center justify-center gap-2 border border-emerald-950/20 px-6 py-3.5 text-sm font-bold text-emerald-950 transition hover:bg-emerald-950/5"
+              >
                 Browse all fabrics
               </Link>
             </div>
@@ -214,9 +217,9 @@ function FeaturedProduct({ product }: { product: Product }) {
 
 function FeaturedPrice({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-white/10 bg-white/[.05] px-4 py-4">
-      <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/40">{label}</p>
-      <p className="mt-2 font-display text-xl font-semibold text-gold-400">{value}</p>
+    <div className="border border-emerald-950/10 bg-cream px-4 py-4">
+      <p className="text-[10px] font-bold uppercase tracking-[.16em] text-black/40">{label}</p>
+      <p className="mt-2 font-display text-xl font-semibold text-emerald-950">{value}</p>
     </div>
   );
 }
