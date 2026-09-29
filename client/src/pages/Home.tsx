@@ -5,7 +5,7 @@ import HeroSlider from '../components/HeroSlider';
 import ProductCard from '../components/ProductCard';
 import Seo from '../components/Seo';
 import { api } from '../lib/api';
-import { products as seedProducts } from '../lib/data';
+import { productImageFallback, products as seedProducts } from '../lib/data';
 import {
   itemListSchema,
   localBusinessSchema,
@@ -14,19 +14,19 @@ import {
   websiteSchema,
   webPageSchema,
 } from '../lib/seo';
-import type { Product } from '../types';
+import { formatPkr, type Product } from '../types';
 
 const seo = pageSeo.home;
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>(seedProducts.filter((product) => product.featured).slice(0, 3));
+  const [products, setProducts] = useState<Product[]>(seedProducts.filter((product) => product.featured).slice(0, 4));
 
   useEffect(() => {
     api
       .get('/products?featured=true')
       .then((response) => {
         if (Array.isArray(response.data) && response.data.length) {
-          setProducts((response.data as Product[]).slice(0, 3));
+          setProducts((response.data as Product[]).slice(0, 4));
         }
       })
       .catch(() => undefined);
@@ -53,12 +53,13 @@ export default function Home() {
           },
           {
             '@context': 'https://schema.org',
-            ...itemListSchema(products.slice(0, 3)),
+            ...itemListSchema(products.slice(0, 4)),
             name: 'Featured fabrics for retail and wholesale',
           },
         ]}
       />
       <HeroSlider />
+      {products[0] ? <FeaturedProduct product={products[0]} /> : null}
       <section className="section bg-[#fbf8f2]">
         <div className="mx-auto max-w-[1320px]">
           <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
@@ -74,7 +75,9 @@ export default function Home() {
           </div>
           <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {products.length ? (
-              products.slice(0, 3).map((p) => <ProductCard key={p.code} product={p} />)
+              (products.length > 1 ? products.slice(1, 4) : products).map((p) => (
+                <ProductCard key={p.code} product={p} />
+              ))
             ) : (
               <div className="rounded-sm bg-white p-10 text-center shadow-soft md:col-span-2 lg:col-span-3">
                 <p className="font-display text-2xl text-emerald-950">New stock is being prepared</p>
@@ -142,5 +145,78 @@ export default function Home() {
         </div>
       </section>
     </>
+  );
+}
+
+function FeaturedProduct({ product }: { product: Product }) {
+  const firstImage = product.images?.[0];
+  const image = (typeof firstImage === 'string' ? firstImage : firstImage?.url) || productImageFallback(product);
+
+  return (
+    <section className="bg-emerald-950 px-5 py-14 text-white md:px-10 md:py-20 lg:px-16">
+      <div className="mx-auto grid max-w-[1320px] overflow-hidden border border-white/10 bg-white/[.04] lg:grid-cols-[.9fr_1.1fr]">
+        <Link to={`/products/${product.slug || product._id}`} className="group relative min-h-[430px] overflow-hidden bg-[#e9e0d0] lg:min-h-[620px]">
+          <img
+            src={image}
+            alt={`${product.name} featured fabric`}
+            width="900"
+            height="1125"
+            className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
+          />
+          <span className="absolute left-5 top-5 rounded-sm bg-gold-500 px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-emerald-950">
+            Featured product
+          </span>
+        </Link>
+
+        <div className="flex items-center px-7 py-12 md:px-12 lg:px-16">
+          <div className="w-full">
+            <p className="text-[11px] font-bold uppercase tracking-[.2em] text-gold-400">
+              {product.category} · {product.code}
+            </p>
+            <h2 className="mt-4 font-display text-4xl font-semibold leading-tight md:text-5xl">
+              {product.name}
+            </h2>
+            <p className="mt-6 max-w-2xl leading-8 text-white/60">{product.description}</p>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {product.meterPrice ? (
+                <FeaturedPrice label="By the metre" value={`${formatPkr(product.meterPrice)} / metre`} />
+              ) : null}
+              <FeaturedPrice
+                label={product.retailUnit === 'suit' ? 'Unstitched suit' : 'Retail price'}
+                value={`${formatPkr(product.retailPrice || 0)} / ${product.retailUnit || 'metre'}`}
+              />
+              {product.bundleQty && product.bundlePrice ? (
+                <FeaturedPrice
+                  label="Bundle saving"
+                  value={`${product.bundleQty} suits · ${formatPkr(product.bundlePrice)}`}
+                />
+              ) : null}
+              {!product.retailOnly && product.wholesalePrice ? (
+                <FeaturedPrice label="Complete thaan" value={`${formatPkr(product.wholesalePrice)} / thaan`} />
+              ) : null}
+            </div>
+
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link to={`/products/${product.slug || product._id}`} className="btn-primary">
+                View featured product <ArrowRight size={17} />
+              </Link>
+              <Link to="/catalogue" className="btn-outline border-white/25 text-white hover:bg-white/10">
+                Browse all fabrics
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeaturedPrice({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-white/10 bg-white/[.05] px-4 py-4">
+      <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/40">{label}</p>
+      <p className="mt-2 font-display text-xl font-semibold text-gold-400">{value}</p>
+    </div>
   );
 }
