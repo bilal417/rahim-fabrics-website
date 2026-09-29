@@ -32,6 +32,7 @@ try {
         ensureGraceMarjanProductImages();
         ensureCurrentCatalogueCheckout();
         ensureTwoHorseBoskiProduct();
+        ensureTwoHorseBoskiMinimumQuantities();
     }
     if (str_starts_with($route, '/orders') || $route === '/checkout/payment-options') {
         ensureOrderCheckoutColumns();

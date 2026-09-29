@@ -297,7 +297,7 @@ function ensureTwoHorseBoskiProduct(): void
                 0,
                 0,
                 400.0,
-                1,
+                100,
                 2000.0,
                 null,
                 2,
@@ -305,7 +305,7 @@ function ensureTwoHorseBoskiProduct(): void
                 9600.0,
                 'suit',
                 1,
-                1,
+                10,
                 0,
                 1,
                 'checkout',
@@ -317,6 +317,35 @@ function ensureTwoHorseBoskiProduct(): void
             $image->execute([$productId, '/images/products/two-horse-boski-cream-website-v1.png']);
         }
 
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
+function ensureTwoHorseBoskiMinimumQuantities(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $pdo->beginTransaction();
+    try {
+        $claim = $pdo->prepare('INSERT IGNORE INTO app_migrations (migration_key) VALUES (?)');
+        $claim->execute(['2026-09-29-two-horse-minimum-quantities']);
+        if ($claim->rowCount() === 0) {
+            $pdo->rollBack();
+            return;
+        }
+
+        $update = $pdo->prepare('UPDATE products SET min_meter_qty = 100, min_wholesale_qty = 10 WHERE code = ? OR slug = ?');
+        $update->execute(['THB-SF-24', 'two-horse-boski-by-shahji-fabrics']);
         $pdo->commit();
     } catch (Throwable $error) {
         if ($pdo->inTransaction()) {
