@@ -203,9 +203,9 @@ export default function ProductDetail() {
               </h1>
               <p className="mt-6 leading-8 text-black/55">{product.description}</p>
 
-              <div className={`mt-8 grid gap-4 ${product.meterPrice ? 'lg:grid-cols-3' : 'sm:grid-cols-2'}`}>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {product.meterPrice ? (
-                  <div className="rounded-sm border border-emerald-950/10 bg-white p-5">
+                  <div className="flex h-full flex-col rounded-sm border border-emerald-950/10 bg-white p-5">
                     <p className="text-xs font-bold uppercase tracking-wider text-black/40">By the metre</p>
                     <p className="mt-2 font-display text-3xl font-semibold text-emerald-950">
                       {formatPkr(product.meterPrice)}
@@ -222,12 +222,12 @@ export default function ProductDetail() {
                         className="field mt-2"
                       />
                     </label>
-                    <button type="button" onClick={addMeter} className="btn-outline mt-4 w-full border-emerald-950 text-emerald-950">
-                      Add metres to cart
+                    <button type="button" onClick={addMeter} className="btn-dark mt-auto w-full px-3 text-center text-sm">
+                      <ShoppingBag size={16} /> Add metre to cart
                     </button>
                   </div>
                 ) : null}
-                <div className={`rounded-sm border border-emerald-950/10 bg-cream p-5 ${product.retailOnly && !product.meterPrice ? 'sm:col-span-2' : ''}`}>
+                <div className={`flex h-full flex-col rounded-sm border border-emerald-950/10 bg-cream p-5 ${product.retailOnly && !product.meterPrice ? 'sm:col-span-2' : ''}`}>
                   <p className="text-xs font-bold uppercase tracking-wider text-black/40">{retailUnit === 'suit' ? 'Unstitched suit' : 'Retail price'}</p>
                   {product.compareAtPrice ? (
                     <p className="mt-2 text-sm font-semibold text-black/35 line-through">
@@ -265,13 +265,13 @@ export default function ProductDetail() {
                       className="field mt-2"
                     />
                   </label>
-                  <button type="button" onClick={addRetail} className="btn-dark mt-4 w-full">
-                    <ShoppingBag size={17} /> Add {retailUnit} to cart
+                  <button type="button" onClick={addRetail} className="btn-dark mt-auto w-full px-3 text-center text-sm">
+                    <ShoppingBag size={16} /> Add {retailUnit} to cart
                   </button>
                     </>
                   )}
                 </div>
-                {!product.retailOnly && <div className="rounded-sm border border-emerald-950/10 bg-white p-5">
+                {!product.retailOnly && <div className="flex h-full flex-col rounded-sm border border-emerald-950/10 bg-white p-5 sm:col-span-2">
                   <p className="text-xs font-bold uppercase tracking-wider text-black/40">Wholesale price</p>
                   <p className="mt-2 font-display text-3xl font-semibold text-emerald-950">
                     {formatPkr(product.wholesalePrice || 0)}
@@ -287,8 +287,8 @@ export default function ProductDetail() {
                       className="field mt-2"
                     />
                   </label>
-                  <button type="button" onClick={addWholesale} className="btn-outline mt-4 w-full border-emerald-950 text-emerald-950">
-                    Add thaan to cart
+                  <button type="button" onClick={addWholesale} className="btn-dark mt-4 w-full px-3 text-center text-sm">
+                    <ShoppingBag size={16} /> Add thaan to cart
                   </button>
                 </div>}
               </div>
