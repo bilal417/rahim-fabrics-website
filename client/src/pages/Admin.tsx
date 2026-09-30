@@ -46,7 +46,7 @@ export function AdminLogin() {
       />
       <div className="grid min-h-screen place-items-center bg-emerald-950 p-5">
         <form onSubmit={submit} className="w-full max-w-md bg-cream p-8 shadow-2xl md:p-10">
-          <img src="/logo.png" className="h-16 w-16 object-contain" alt="" />
+          <img src="/logo.webp" className="h-16 w-16 object-contain" alt="" />
           <h1 className="mt-5 font-display text-3xl font-semibold text-emerald-950">Trade administration</h1>
           <p className="mt-2 text-sm text-black/45">Sign in to manage catalogue, orders and inquiries.</p>
           <input
@@ -199,7 +199,7 @@ export function AdminDashboard() {
       <div className="min-h-screen bg-[#f4f1eb] md:flex">
         <aside className="bg-emerald-950 p-6 text-white md:sticky md:top-0 md:h-screen md:w-64">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" className="h-11 w-11 object-contain" alt="" />
+            <img src="/logo.webp" className="h-11 w-11 object-contain" alt="" />
             <div className="font-display text-xl">Rahim Fabrics</div>
           </div>
           <nav className="mt-10 space-y-2">

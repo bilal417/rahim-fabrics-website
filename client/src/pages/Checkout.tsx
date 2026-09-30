@@ -217,6 +217,12 @@ export default function Checkout() {
             <button disabled={loading} className="btn-dark mt-7 w-full">
               {loading ? 'Completing order…' : 'Complete order'}
             </button>
+            <p className="mt-4 text-xs leading-5 text-black/45">
+              By completing the order, you agree to our{' '}
+              <Link to="/terms-conditions" className="font-semibold text-emerald-900 underline">terms</Link>,{' '}
+              <Link to="/shipping-delivery" className="font-semibold text-emerald-900 underline">shipping information</Link>{' '}
+              and <Link to="/returns-exchanges" className="font-semibold text-emerald-900 underline">returns process</Link>.
+            </p>
           </form>
 
           <aside className="h-fit bg-emerald-950 p-6 text-white">
@@ -236,7 +242,7 @@ export default function Checkout() {
               <span>{formatPkr(subtotal)}</span>
             </div>
             <p className="mt-4 text-xs leading-5 text-white/45">
-              COD delivery is free in Lahore. Outside Lahore charges are confirmed before dispatch. Product totals use current server prices.
+              Delivery charges are confirmed after order review because parcel weight and destination vary. Product totals use current server prices.
             </p>
           </aside>
         </div>

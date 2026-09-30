@@ -78,7 +78,10 @@ export default function Wholesale() {
         <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[.85fr_1.15fr]">
           <div className="relative min-h-[420px] overflow-hidden bg-emerald-950 p-8 text-white md:p-14 lg:min-h-[750px] lg:p-16">
             <img
-              src="/images/showroom-hero.png"
+              src="/images/showroom-hero.webp"
+              width="1600"
+              height="900"
+              fetchPriority="high"
               className="absolute inset-0 h-full w-full object-cover opacity-25"
               alt="Rahim Fabrics wholesale showroom New Azam Cloth Market Lahore"
             />

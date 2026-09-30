@@ -30,8 +30,8 @@ export const EMAIL = 'info@rahimfabrics.site';
 /** Featured catalogue items available even when the API is offline. */
 export const products: Product[] = [
   {
-    _id: 'two-horse-boski-by-shahji-fabrics',
-    slug: 'two-horse-boski-by-shahji-fabrics',
+    _id: 'two-horse-boski-by-rahim-fabrics',
+    slug: 'two-horse-boski-by-rahim-fabrics',
     name: 'Two Horse Boski by Shahji Fabrics',
     code: 'THB-SF-24',
     category: 'Boski',
@@ -50,7 +50,7 @@ export const products: Product[] = [
     retailUnit: 'suit',
     minRetailQty: 1,
     minWholesaleQty: 10,
-    images: ['/images/products/two-horse-boski-cream-website-v1.png'],
+    images: ['/images/products/two-horse-boski-cream-website-v1.webp'],
     description:
       'Two Horse Boski by Shahji Fabrics is a refined cream and off-white unstitched men’s fabric with a smooth finish, graceful fall and timeless formal look. An elegant choice for weddings, Eid and classic shalwar qameez. Order by the metre, choose a complete 5-metre suit, save with the two-suit bundle, or buy a full 24-metre thaan.',
     featured: true,
@@ -120,13 +120,13 @@ export const products: Product[] = [
     minRetailQty: 1,
     minWholesaleQty: 1,
     images: [
-      '/images/products/grace-dunhill-sky-blue-tailor-desk.png',
-      '/images/products/grace-dunhill-taupe-olive-tailor-desk.png',
-      '/images/products/grace-dunhill-muted-teal-blue-tailor-desk.png',
-      '/images/products/grace-dunhill-steel-blue-grey-tailor-desk.png',
-      '/images/products/grace-dunhill-warm-grey-tailor-desk.png',
-      '/images/products/grace-dunhill-deep-charcoal-teal-tailor-desk.png',
-      '/images/products/grace-dunhill-light-stone-beige-tailor-desk.png',
+      '/images/products/grace-dunhill-sky-blue-tailor-desk.webp',
+      '/images/products/grace-dunhill-taupe-olive-tailor-desk.webp',
+      '/images/products/grace-dunhill-muted-teal-blue-tailor-desk.webp',
+      '/images/products/grace-dunhill-steel-blue-grey-tailor-desk.webp',
+      '/images/products/grace-dunhill-warm-grey-tailor-desk.webp',
+      '/images/products/grace-dunhill-deep-charcoal-teal-tailor-desk.webp',
+      '/images/products/grace-dunhill-light-stone-beige-tailor-desk.webp',
     ],
     description:
       'Grace Dunhill Self-Textured is a premium winter wash & wear collection for men. Its refined self-textured finish, comfortable seasonal weight and seven versatile shades make it an elegant choice for everyday and occasion wear. Choose one unstitched suit for PKR 1,499 or any two suits for PKR 2,599.',
@@ -155,11 +155,11 @@ export const products: Product[] = [
     minRetailQty: 1,
     minWholesaleQty: 1,
     images: [
-      '/images/products/bit-coin-olive-branded-v1.png',
-      '/images/products/bit-coin-ice-blue-branded-v1.png',
-      '/images/products/bit-coin-rust-branded-v1.png',
-      '/images/products/bit-coin-khaki-branded-v1.png',
-      '/images/products/bit-coin-ivory-branded-v1.png',
+      '/images/products/bit-coin-olive-branded-v1.webp',
+      '/images/products/bit-coin-ice-blue-branded-v1.webp',
+      '/images/products/bit-coin-rust-branded-v1.webp',
+      '/images/products/bit-coin-khaki-branded-v1.webp',
+      '/images/products/bit-coin-ivory-branded-v1.webp',
     ],
     description:
       'Bit Coin by Gul Ahmed is a premium wash & wear fabric with a smooth finish, graceful drape and refined olive-khaki tone. A versatile unstitched choice for polished everyday and occasion wear.',

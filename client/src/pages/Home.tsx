@@ -17,6 +17,26 @@ import {
 import { formatPkr, type Product } from '../types';
 
 const seo = pageSeo.home;
+const collectionCards = [
+  {
+    to: '/collections/wedding-collection',
+    label: 'Wedding Collection',
+    text: 'Refined light and deep shades for nikah, wedding and family occasions.',
+    image: '/images/products/premium-thaan-off-white-cream-combined-branded-v2.webp',
+  },
+  {
+    to: '/collections/wash-and-wear',
+    label: 'Wash & Wear',
+    text: 'Practical unstitched fabrics with a polished everyday fall.',
+    image: '/images/products/bit-coin-olive-branded-v1.webp',
+  },
+  {
+    to: '/collections/winter-fabrics',
+    label: 'Winter Fabrics',
+    text: 'Seasonal texture, comfortable weight and richer menswear colours.',
+    image: '/images/products/grace-marjan-wool-deep-navy.webp',
+  },
+];
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>(seedProducts.filter((product) => product.featured).slice(0, 4));
@@ -60,6 +80,32 @@ export default function Home() {
       />
       <HeroSlider />
       {products[0] ? <FeaturedProduct product={products[0]} /> : null}
+      <section className="section bg-emerald-950 text-white">
+        <div className="mx-auto max-w-[1320px]">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="eyebrow">Shop with purpose</p>
+              <h2 className="mt-3 font-display text-4xl font-semibold md:text-5xl">Explore our fabric collections</h2>
+            </div>
+            <Link to="/catalogue" className="flex items-center gap-2 text-sm font-bold text-gold-400">
+              View complete catalogue <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {collectionCards.map((collection) => (
+              <Link key={collection.to} to={collection.to} className="group relative min-h-[390px] overflow-hidden border border-white/10">
+                <img src={collection.image} alt={collection.label} width="900" height="1125" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/30 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6">
+                  <h3 className="font-display text-3xl font-semibold">{collection.label}</h3>
+                  <p className="mt-2 leading-6 text-white/65">{collection.text}</p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-gold-400">Explore collection <ArrowRight size={15} /></span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
       <section className="section bg-[#fbf8f2]">
         <div className="mx-auto max-w-[1320px]">
           <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
@@ -95,7 +141,7 @@ export default function Home() {
       <section className="bg-cream">
         <div className="mx-auto grid max-w-[1440px] lg:grid-cols-2">
           <div
-            className="relative min-h-[480px] overflow-hidden bg-[url('/images/rahim-fabrics-hero-shop-signboard.png')] bg-cover bg-left"
+            className="relative min-h-[480px] overflow-hidden bg-[url('/images/rahim-fabrics-hero-shop-signboard.webp')] bg-cover bg-left"
             role="img"
             aria-label="Rahim Fabrics showroom at New Azam Cloth Market Lahore"
           >
@@ -180,7 +226,10 @@ function FeaturedProduct({ product }: { product: Product }) {
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {product.meterPrice ? (
-                <FeaturedPrice label="By the metre" value={`${formatPkr(product.meterPrice)} / metre`} />
+                <FeaturedPrice
+                  label="Bulk by the metre"
+                  value={`${formatPkr(product.meterPrice)} / metre · minimum ${product.minMeterQty || 1}m`}
+                />
               ) : null}
               <FeaturedPrice
                 label={product.retailUnit === 'suit' ? 'Unstitched suit' : 'Retail price'}

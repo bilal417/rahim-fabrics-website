@@ -9,6 +9,9 @@ const Catalogue = lazy(() => import('./pages/Catalogue'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 const Wholesale = lazy(() => import('./pages/Wholesale'));
 const About = lazy(() => import('./pages/About'));
+const CollectionLanding = lazy(() => import('./pages/CollectionLanding'));
+const InformationPage = lazy(() => import('./pages/InformationPage'));
+const Contact = lazy(() => import('./pages/Contact'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
@@ -29,6 +32,13 @@ export default function App() {
               <Route path="/products/:slug" element={<ProductDetail />} />
               <Route path="/wholesale" element={<Wholesale />} />
               <Route path="/about" element={<About />} />
+              <Route path="/collections/:slug" element={<CollectionLanding />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/shipping-delivery" element={<InformationPage />} />
+              <Route path="/returns-exchanges" element={<InformationPage />} />
+              <Route path="/payment-policy" element={<InformationPage />} />
+              <Route path="/privacy-policy" element={<InformationPage />} />
+              <Route path="/terms-conditions" element={<InformationPage />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order-success/:orderNumber" element={<OrderSuccess />} />

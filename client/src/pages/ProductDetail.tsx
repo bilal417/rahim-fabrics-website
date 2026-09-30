@@ -338,9 +338,73 @@ export default function ProductDetail() {
               </a>
             </div>
           </div>
+          <ProductBuyingGuide product={product} />
         </div>
       </section>
     </>
+  );
+}
+
+function ProductBuyingGuide({ product }: { product: Product }) {
+  const collectionPath = product.category === 'Boski'
+    ? '/collections/boski-fabric'
+    : product.category === 'Wash & Wear'
+      ? '/collections/wash-and-wear'
+      : product.category === 'Winter'
+        ? '/collections/winter-fabrics'
+        : '/collections/wedding-collection';
+
+  return (
+    <section className="mt-16 border-t border-black/10 pt-12" aria-labelledby="product-guide-title">
+      <div className="grid gap-10 lg:grid-cols-[1fr_.9fr]">
+        <div>
+          <p className="eyebrow">Product guidance</p>
+          <h2 id="product-guide-title" className="mt-3 font-display text-4xl font-semibold text-emerald-950">
+            Choosing {product.name}
+          </h2>
+          <div className="mt-5 space-y-4 leading-8 text-black/55">
+            <p>
+              {product.name} is an unstitched men’s fabric in {product.colors.length} current {product.colors.length === 1 ? 'shade' : 'shades'}.
+              Its {product.fabricType.toLowerCase()} character makes it suitable for customers who want their tailor to control the final fit, collar, cuff and trouser cut.
+            </p>
+            <p>
+              Before ordering, select the quantity shown for your preferred retail or wholesale option. If exact colour matching is important, ask our team for current shade guidance because screen settings and photography can create small differences.
+            </p>
+            <p>
+              Keep the fabric packaging and product code <strong className="text-emerald-950">{product.code}</strong> until tailoring begins. Washing, pressing and stitching should follow the handling advice supplied with the fabric or your experienced tailor’s recommendation.
+            </p>
+          </div>
+          <Link to={collectionPath} className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-emerald-900">
+            Explore related {product.category.toLowerCase()} fabrics <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+        <div className="border border-emerald-950/10 bg-cream p-7 md:p-9">
+          <h2 className="font-display text-3xl font-semibold text-emerald-950">Ordering questions</h2>
+          <div className="mt-5 divide-y divide-emerald-950/10">
+            <details className="group py-4">
+              <summary className="cursor-pointer list-none font-bold text-emerald-950">Is this fabric stitched?</summary>
+              <p className="mt-3 leading-7 text-black/55">No. The product is supplied as unstitched men’s fabric for tailoring to your measurements and preferred style.</p>
+            </details>
+            <details className="group py-4">
+              <summary className="cursor-pointer list-none font-bold text-emerald-950">Can I confirm the colour before ordering?</summary>
+              <p className="mt-3 leading-7 text-black/55">Yes. Send the product name, code and preferred shade on WhatsApp and our team will guide you using the current stock.</p>
+            </details>
+            <details className="group py-4">
+              <summary className="cursor-pointer list-none font-bold text-emerald-950">Is wholesale buying available?</summary>
+              <p className="mt-3 leading-7 text-black/55">
+                {product.retailOnly
+                  ? 'This listing is currently presented as a retail suit option. Trade buyers can still contact the wholesale desk to discuss suitable available ranges.'
+                  : `Yes. The current online minimum is ${product.minWholesaleQty || 1} thaan. Contact the wholesale desk when you need help planning a larger order.`}
+              </p>
+            </details>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-wider">
+            <Link to="/shipping-delivery" className="text-emerald-900 underline underline-offset-4">Shipping information</Link>
+            <Link to="/returns-exchanges" className="text-emerald-900 underline underline-offset-4">Returns & exchanges</Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

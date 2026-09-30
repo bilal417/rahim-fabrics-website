@@ -122,6 +122,13 @@ export function productSchema(product: Product) {
     .map((img) => (typeof img === 'string' ? img : img.url))
     .filter(Boolean)
     .map(absoluteImage);
+  const productBrand = product.name.toLowerCase().includes('gul ahmed')
+    ? 'Gul Ahmed'
+    : product.name.toLowerCase().includes('shahji')
+      ? 'Shahji Fabrics'
+      : product.name.toLowerCase().startsWith('grace ')
+        ? 'Grace'
+        : SITE_NAME;
 
   const offers = [
     {
@@ -178,7 +185,11 @@ export function productSchema(product: Product) {
     category: product.category,
     brand: {
       '@type': 'Brand',
-      name: SITE_NAME,
+      name: productBrand,
+    },
+    audience: {
+      '@type': 'PeopleAudience',
+      suggestedGender: 'male',
     },
     image: image.length ? image : [DEFAULT_IMAGE],
     material: product.fabricType,

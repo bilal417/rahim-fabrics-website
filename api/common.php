@@ -280,14 +280,14 @@ function ensureTwoHorseBoskiProduct(): void
         }
 
         $find = $pdo->prepare('SELECT id FROM products WHERE code = ? OR slug = ? LIMIT 1 FOR UPDATE');
-        $find->execute(['THB-SF-24', 'two-horse-boski-by-shahji-fabrics']);
+        $find->execute(['THB-SF-24', 'two-horse-boski-by-rahim-fabrics']);
         $productId = (int) ($find->fetchColumn() ?: 0);
 
         if ($productId === 0) {
             $insert = $pdo->prepare('INSERT INTO products (name, slug, code, category, fabric_type, colors, thaan_length, suits_per_thaan, stock, stock_meters, meter_price, min_meter_qty, retail_price, compare_at_price, bundle_qty, bundle_price, wholesale_price, retail_unit, min_retail_qty, min_wholesale_qty, retail_only, unlimited_stock, purchase_mode, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $insert->execute([
                 'Two Horse Boski by Shahji Fabrics',
-                'two-horse-boski-by-shahji-fabrics',
+                'two-horse-boski-by-rahim-fabrics',
                 'THB-SF-24',
                 'Boski',
                 'Premium Boski',
@@ -314,7 +314,7 @@ function ensureTwoHorseBoskiProduct(): void
             ]);
             $productId = (int) $pdo->lastInsertId();
             $image = $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, 0)');
-            $image->execute([$productId, '/images/products/two-horse-boski-cream-website-v1.png']);
+            $image->execute([$productId, '/images/products/two-horse-boski-cream-website-v1.webp']);
         }
 
         $pdo->commit();
@@ -344,8 +344,48 @@ function ensureTwoHorseBoskiMinimumQuantities(): void
             return;
         }
 
-        $update = $pdo->prepare('UPDATE products SET min_meter_qty = 100, min_wholesale_qty = 10 WHERE code = ? OR slug = ?');
-        $update->execute(['THB-SF-24', 'two-horse-boski-by-shahji-fabrics']);
+        $update = $pdo->prepare('UPDATE products SET min_meter_qty = 100, min_wholesale_qty = 10 WHERE code = ? OR slug IN (?, ?)');
+        $update->execute(['THB-SF-24', 'two-horse-boski-by-rahim-fabrics', 'two-horse-boski-by-shahji-fabrics']);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
+function ensureStorefrontSeoUpdates(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $pdo->exec("CREATE TABLE IF NOT EXISTS app_migrations (
+        migration_key VARCHAR(120) NOT NULL,
+        applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (migration_key)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    $pdo->beginTransaction();
+    try {
+        $claim = $pdo->prepare('INSERT IGNORE INTO app_migrations (migration_key) VALUES (?)');
+        $claim->execute(['2026-10-01-seo-webp-product-urls']);
+        if ($claim->rowCount() === 0) {
+            $pdo->rollBack();
+            return;
+        }
+
+        $normalizeBoski = $pdo->prepare('UPDATE products SET slug = ? WHERE code = ?');
+        $normalizeBoski->execute(['two-horse-boski-by-rahim-fabrics', 'THB-SF-24']);
+
+        $pdo->exec("UPDATE product_images
+            SET url = CONCAT(LEFT(url, CHAR_LENGTH(url) - 4), '.webp')
+            WHERE url LIKE '/images/products/%.png'");
+
         $pdo->commit();
     } catch (Throwable $error) {
         if ($pdo->inTransaction()) {
@@ -402,13 +442,13 @@ function ensureGraceDunhillProduct(): void
     }
 
     $urls = [
-        '/images/products/grace-dunhill-sky-blue-tailor-desk.png',
-        '/images/products/grace-dunhill-taupe-olive-tailor-desk.png',
-        '/images/products/grace-dunhill-muted-teal-blue-tailor-desk.png',
-        '/images/products/grace-dunhill-steel-blue-grey-tailor-desk.png',
-        '/images/products/grace-dunhill-warm-grey-tailor-desk.png',
-        '/images/products/grace-dunhill-deep-charcoal-teal-tailor-desk.png',
-        '/images/products/grace-dunhill-light-stone-beige-tailor-desk.png',
+        '/images/products/grace-dunhill-sky-blue-tailor-desk.webp',
+        '/images/products/grace-dunhill-taupe-olive-tailor-desk.webp',
+        '/images/products/grace-dunhill-muted-teal-blue-tailor-desk.webp',
+        '/images/products/grace-dunhill-steel-blue-grey-tailor-desk.webp',
+        '/images/products/grace-dunhill-warm-grey-tailor-desk.webp',
+        '/images/products/grace-dunhill-deep-charcoal-teal-tailor-desk.webp',
+        '/images/products/grace-dunhill-light-stone-beige-tailor-desk.webp',
     ];
     $imageInsert = $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, ?)');
     foreach ($urls as $position => $url) {
@@ -535,11 +575,11 @@ function ensureCurrentCatalogueCheckout(): void
         $imageCount->execute([$productId]);
         if ((int) $imageCount->fetchColumn() === 0) {
             $urls = [
-                '/images/products/bit-coin-olive-branded-v1.png',
-                '/images/products/bit-coin-ice-blue-branded-v1.png',
-                '/images/products/bit-coin-rust-branded-v1.png',
-                '/images/products/bit-coin-khaki-branded-v1.png',
-                '/images/products/bit-coin-ivory-branded-v1.png',
+                '/images/products/bit-coin-olive-branded-v1.webp',
+                '/images/products/bit-coin-ice-blue-branded-v1.webp',
+                '/images/products/bit-coin-rust-branded-v1.webp',
+                '/images/products/bit-coin-khaki-branded-v1.webp',
+                '/images/products/bit-coin-ivory-branded-v1.webp',
             ];
             $imageInsert = $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, ?)');
             foreach ($urls as $position => $url) {

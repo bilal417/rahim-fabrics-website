@@ -33,6 +33,7 @@ try {
         ensureCurrentCatalogueCheckout();
         ensureTwoHorseBoskiProduct();
         ensureTwoHorseBoskiMinimumQuantities();
+        ensureStorefrontSeoUpdates();
     }
     if (str_starts_with($route, '/orders') || $route === '/checkout/payment-options') {
         ensureOrderCheckoutColumns();

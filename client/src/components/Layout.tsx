@@ -22,6 +22,14 @@ const links = [
   ['/catalogue', 'Shop'],
 ] as const;
 
+const seoCollections = [
+  ['/collections/boski-fabric', 'Boski Fabric'],
+  ['/collections/wash-and-wear', 'Wash & Wear'],
+  ['/collections/winter-fabrics', 'Winter Fabrics'],
+  ['/collections/wedding-collection', 'Wedding Collection'],
+  ['/collections/wholesale-gents-fabrics', 'Wholesale Fabrics'],
+] as const;
+
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const [collectionsOpen, setCollectionsOpen] = useState(false);
@@ -46,15 +54,15 @@ export default function Layout() {
   return (
     <div className="min-h-screen overflow-x-hidden">
       <div className="bg-emerald-950 px-5 py-2.5 text-white">
-        <div className="mx-auto flex max-w-[1320px] items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-[.16em] text-white/75 sm:justify-between sm:text-[11px]">
+        <div className="mx-auto flex max-w-[1320px] items-center justify-center gap-4 text-[9px] font-bold uppercase tracking-[.13em] text-white/75 sm:justify-between sm:text-[11px] sm:tracking-[.16em]">
           <span className="truncate">Retail & wholesale · Delivery across Pakistan</span>
-          <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+          <div className="hidden shrink-0 items-center gap-3 sm:flex sm:gap-4">
             <SocialLinks compact />
           </div>
         </div>
       </div>
       <header className="sticky top-0 z-50 border-b border-emerald-950/10 bg-[#fbf8f2]/95 shadow-[0_8px_30px_rgba(4,54,45,.06)] backdrop-blur-xl">
-        <div className="relative mx-auto flex h-[100px] w-full max-w-[1320px] items-center justify-between md:h-[112px]">
+        <div className="relative mx-auto flex h-[92px] w-full max-w-[1320px] items-center justify-between px-3 sm:px-5 md:h-[112px]">
           <Link
             to="/"
             aria-label="Rahim Fabrics home"
@@ -63,7 +71,7 @@ export default function Layout() {
             <img
               src="/logo-small.webp?v=1"
               alt="Rahim Fabrics — Tradition in every thread"
-              className="h-[88px] w-auto max-w-[140px] rounded-md object-contain object-left transition duration-300 group-hover:scale-[1.02] md:h-[100px] md:max-w-[160px]"
+              className="h-[76px] w-auto max-w-[118px] rounded-md object-contain object-left transition duration-300 group-hover:scale-[1.02] sm:h-[88px] sm:max-w-[140px] md:h-[100px] md:max-w-[160px]"
             />
           </Link>
           <nav
@@ -112,10 +120,10 @@ export default function Layout() {
               rel="noreferrer"
               onClick={() => trackLead('header_whatsapp')}
               aria-label="Chat with Rahim Fabrics on WhatsApp"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-emerald-950 px-4 text-xs font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-900"
+              className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-full bg-emerald-950 px-0 text-xs font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-900 sm:w-auto sm:px-4"
             >
               <MessageCircle size={17} />
-              Chat With Us
+              <span className="hidden sm:inline">Chat With Us</span>
             </a>
             <Link
               to="/cart"
@@ -260,6 +268,24 @@ export default function Layout() {
                 )}
               </section>
             ))}
+            <section>
+              <div className="border-b border-gold-500/35 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-[.2em] text-gold-600">Popular searches</span>
+                <h3 className="mt-1 font-display text-2xl font-semibold text-emerald-950">Shop by collection</h3>
+              </div>
+              <div className="mt-3 divide-y divide-emerald-950/10">
+                {seoCollections.map(([to, label]) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={() => setCollectionsOpen(false)}
+                    className="flex items-center justify-between py-3.5 text-sm font-semibold text-ink/65 transition hover:pl-1 hover:text-emerald-950"
+                  >
+                    {label} <ChevronRight size={15} className="text-gold-600" />
+                  </Link>
+                ))}
+              </div>
+            </section>
             <Link
               to="/catalogue"
               onClick={() => setCollectionsOpen(false)}
@@ -274,7 +300,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="bg-emerald-950 px-5 pb-8 pt-16 text-white md:px-10 lg:px-16">
-        <div className="mx-auto grid max-w-[1320px] gap-12 border-b border-white/10 pb-14 md:grid-cols-4">
+        <div className="mx-auto grid max-w-[1320px] gap-12 border-b border-white/10 pb-14 md:grid-cols-2 lg:grid-cols-5">
           <div className="md:col-span-2">
             <img
               src="/logo-small.webp?v=1"
@@ -312,6 +338,22 @@ export default function Layout() {
               >
                 Our Story
               </Link>
+              <Link to="/wholesale" className="text-sm text-white/65 transition hover:translate-x-1 hover:text-gold-400">
+                Wholesale
+              </Link>
+              <Link to="/contact" className="text-sm text-white/65 transition hover:translate-x-1 hover:text-gold-400">
+                Contact
+              </Link>
+            </nav>
+          </div>
+          <div>
+            <div className="eyebrow">Collections</div>
+            <nav aria-label="Fabric collection links" className="mt-4 flex flex-col items-start gap-3">
+              {seoCollections.slice(0, 4).map(([to, label]) => (
+                <Link key={to} to={to} className="text-sm text-white/65 transition hover:translate-x-1 hover:text-gold-400">
+                  {label}
+                </Link>
+              ))}
             </nav>
           </div>
           <div>
@@ -334,9 +376,16 @@ export default function Layout() {
             </a>
           </div>
         </div>
-        <div className="mx-auto flex max-w-[1320px] flex-col justify-between gap-3 pt-7 text-[11px] uppercase tracking-wider text-white/35 sm:flex-row">
+        <div className="mx-auto flex max-w-[1320px] flex-col justify-between gap-5 pt-7 text-[11px] uppercase tracking-wider text-white/35 lg:flex-row lg:items-center">
           <span>© {new Date().getFullYear()} Rahim Fabrics</span>
-          <Link to="/admin/login">Trade administration</Link>
+          <nav aria-label="Policy links" className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link to="/shipping-delivery" className="hover:text-gold-400">Shipping</Link>
+            <Link to="/returns-exchanges" className="hover:text-gold-400">Returns</Link>
+            <Link to="/payment-policy" className="hover:text-gold-400">Payments</Link>
+            <Link to="/privacy-policy" className="hover:text-gold-400">Privacy</Link>
+            <Link to="/terms-conditions" className="hover:text-gold-400">Terms</Link>
+            <Link to="/admin/login" className="hover:text-gold-400">Trade administration</Link>
+          </nav>
         </div>
       </footer>
       <a

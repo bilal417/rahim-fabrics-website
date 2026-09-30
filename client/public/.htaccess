@@ -1,8 +1,25 @@
 Options -Indexes
 DirectoryIndex index.html
 
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+  <FilesMatch "\.(?:css|js|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(?:webp|svg|ico)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # Preserve the established canonical URL for the Boski product.
+  RewriteRule ^products/two-horse-boski-by-shahji-fabrics/?$ /products/two-horse-boski-by-rahim-fabrics [R=301,L,NE]
 
   # When the Git repository itself is deployed, keep source-only folders private.
   RewriteRule ^(?:client|database|facebook-page-assets|node_modules)(?:/|$) - [F,L,NC]
@@ -17,6 +34,9 @@ DirectoryIndex index.html
 
   # Generate the sitemap from the current product catalogue.
   RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+  # Google Merchant Center compatible product feed.
+  RewriteRule ^merchant-feed\.xml$ merchant-feed.php [L]
 
   # React Router fallback with route-specific SEO metadata and status codes.
   RewriteCond %{REQUEST_FILENAME} !-f

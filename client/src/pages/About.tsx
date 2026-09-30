@@ -33,7 +33,10 @@ export default function About() {
       />
       <section className="relative grid min-h-[560px] place-items-center overflow-hidden bg-emerald-950 px-5 text-center text-white">
         <img
-          src="/images/showroom-hero.png"
+          src="/images/showroom-hero.webp"
+          width="1600"
+          height="900"
+          fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover opacity-25"
           alt="Rahim Fabrics showroom at New Azam Cloth Market Lahore"
         />

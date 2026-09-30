@@ -60,7 +60,7 @@ export default function Cart() {
                   <div key={`${item.productId}-${item.unit}`} className="flex flex-col gap-4 bg-white p-5 shadow-soft sm:flex-row sm:items-center">
                     <div
                       className="h-24 w-full bg-cover bg-center sm:w-24"
-                      style={{ backgroundImage: `url(${item.image || '/images/fabric-collection.png'})` }}
+                      style={{ backgroundImage: `url(${item.image || '/images/fabric-collection.webp'})` }}
                       role="img"
                       aria-label={item.name}
                     />
