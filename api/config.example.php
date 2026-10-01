@@ -12,6 +12,8 @@ return [
     'setup_key' => 'replace-with-a-different-long-random-key',
     'token_ttl' => 604800,
     'upload_max_bytes' => 8388608,
+    'product_image_webp_quality' => 82,
+    'product_image_max_dimension' => 2400,
     'bank_account_name' => 'SHEIKH MUHAMMAD BILAL',
     'bank_name' => 'Meezan Bank',
     'bank_account_number' => '02470108665528',

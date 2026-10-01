@@ -788,6 +788,89 @@ function inquiryJson(array $row): array
     ];
 }
 
+function productImageFromUpload(string $path, string $mime): mixed
+{
+    if (!extension_loaded('gd') || !function_exists('imagewebp')) {
+        throw new RuntimeException('WebP image support is not available on the server.');
+    }
+
+    $image = match ($mime) {
+        'image/jpeg' => function_exists('imagecreatefromjpeg') ? @imagecreatefromjpeg($path) : false,
+        'image/png' => function_exists('imagecreatefrompng') ? @imagecreatefrompng($path) : false,
+        'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+        default => false,
+    };
+    if ($image === false) {
+        throw new RuntimeException('The uploaded image could not be decoded.');
+    }
+
+    if ($mime === 'image/jpeg' && function_exists('exif_read_data')) {
+        $exif = @exif_read_data($path);
+        $orientation = is_array($exif) ? (int) ($exif['Orientation'] ?? 1) : 1;
+        $degrees = match ($orientation) {
+            3 => 180,
+            6 => -90,
+            8 => 90,
+            default => 0,
+        };
+        if ($degrees !== 0) {
+            $rotated = imagerotate($image, $degrees, 0);
+            if ($rotated !== false) {
+                $image = $rotated;
+            }
+        }
+    }
+
+    return $image;
+}
+
+function resizeProductImage(mixed $image): mixed
+{
+    $width = imagesx($image);
+    $height = imagesy($image);
+    $maximum = max(1200, min(4000, (int) config('product_image_max_dimension', 2400)));
+    if ($width <= $maximum && $height <= $maximum) {
+        imagepalettetotruecolor($image);
+        imagealphablending($image, true);
+        imagesavealpha($image, true);
+        return $image;
+    }
+
+    $scale = min($maximum / $width, $maximum / $height);
+    $targetWidth = max(1, (int) round($width * $scale));
+    $targetHeight = max(1, (int) round($height * $scale));
+    $resized = imagecreatetruecolor($targetWidth, $targetHeight);
+    if ($resized === false) {
+        throw new RuntimeException('The uploaded image could not be resized.');
+    }
+    imagealphablending($resized, false);
+    imagesavealpha($resized, true);
+    $transparent = imagecolorallocatealpha($resized, 0, 0, 0, 127);
+    imagefilledrectangle($resized, 0, 0, $targetWidth, $targetHeight, $transparent);
+    if (!imagecopyresampled($resized, $image, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height)) {
+        throw new RuntimeException('The uploaded image could not be resized.');
+    }
+    return $resized;
+}
+
+function convertProductImageToWebp(string $source, string $mime, string $destination): void
+{
+    $image = productImageFromUpload($source, $mime);
+    try {
+        $image = resizeProductImage($image);
+        $quality = max(60, min(92, (int) config('product_image_webp_quality', 82)));
+        if (!imagewebp($image, $destination, $quality) || !is_file($destination) || filesize($destination) === 0) {
+            throw new RuntimeException('The uploaded image could not be converted to WebP.');
+        }
+        @chmod($destination, 0644);
+    } catch (Throwable $error) {
+        if (is_file($destination)) {
+            unlink($destination);
+        }
+        throw $error;
+    }
+}
+
 function uploadedImages(): array
 {
     if (empty($_FILES['images'])) {
@@ -802,13 +885,13 @@ function uploadedImages(): array
         fail('A maximum of 6 images is allowed.', 422);
     }
 
-    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $allowed = ['image/jpeg', 'image/png', 'image/webp'];
     $directory = dirname(__DIR__) . '/uploads/products';
     if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
         throw new RuntimeException('The product upload directory could not be created.');
     }
     $finfo = new finfo(FILEINFO_MIME_TYPE);
-    $saved = [];
+    $validated = [];
     foreach ($names as $index => $originalName) {
         if ((int) $errors[$index] === UPLOAD_ERR_NO_FILE) {
             continue;
@@ -819,15 +902,36 @@ function uploadedImages(): array
         if ((int) $sizes[$index] > (int) config('upload_max_bytes', 8388608)) {
             fail('Each image must be 8 MB or smaller.', 422);
         }
-        $mime = $finfo->file($tmpNames[$index]);
-        if (!isset($allowed[$mime])) {
+        $temporary = (string) $tmpNames[$index];
+        if ($temporary === '' || !is_uploaded_file($temporary)) {
+            fail('One of the image uploads is invalid.', 422);
+        }
+        $mime = (string) $finfo->file($temporary);
+        if (!in_array($mime, $allowed, true)) {
             fail('Only JPEG, PNG and WebP images are allowed.', 422);
         }
-        $filename = bin2hex(random_bytes(16)) . '.' . $allowed[$mime];
-        if (!move_uploaded_file($tmpNames[$index], $directory . '/' . $filename)) {
-            throw new RuntimeException('An image could not be saved.');
+        $dimensions = @getimagesize($temporary);
+        if ($dimensions === false || (int) $dimensions[0] < 1 || (int) $dimensions[1] < 1) {
+            fail('One of the uploaded images is invalid.', 422);
         }
-        $saved[] = '/uploads/products/' . $filename;
+        if ((int) $dimensions[0] * (int) $dimensions[1] > 30000000) {
+            fail('Each image must be 30 megapixels or smaller.', 422);
+        }
+        $validated[] = ['path' => $temporary, 'mime' => $mime];
+    }
+
+    $saved = [];
+    try {
+        foreach ($validated as $upload) {
+            $filename = bin2hex(random_bytes(16)) . '.webp';
+            convertProductImageToWebp($upload['path'], $upload['mime'], $directory . '/' . $filename);
+            $saved[] = '/uploads/products/' . $filename;
+        }
+    } catch (Throwable $error) {
+        foreach ($saved as $url) {
+            removeLocalImage($url);
+        }
+        throw $error;
     }
     return $saved;
 }

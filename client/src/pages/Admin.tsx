@@ -357,6 +357,7 @@ export function AdminDashboard() {
                 <label className="field cursor-pointer md:col-span-2">
                   {editing ? 'Upload replacement images (optional)' : 'Upload product images'}
                   <input type="file" name="images" multiple accept="image/jpeg,image/png,image/webp" className="mt-2 block text-xs" />
+                  <span className="mt-2 block text-xs font-normal text-ink/55">JPG, PNG and WebP files are automatically optimized and stored as WebP.</span>
                 </label>
                 <div className="flex gap-3 md:col-span-2">
                   <button className="btn-dark">{editing ? 'Save changes' : 'Add to catalogue'}</button>
