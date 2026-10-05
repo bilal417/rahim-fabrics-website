@@ -5,11 +5,13 @@ export const GA_MEASUREMENT_ID = 'G-04WKCJ4P8W';
 
 type GtagCommand = 'config' | 'event' | 'js' | 'set';
 type Gtag = (command: GtagCommand, target: string | Date, params?: Record<string, unknown>) => void;
+type Fbq = (command: 'track' | 'trackCustom', event: string, params?: Record<string, unknown>, options?: { eventID?: string }) => void;
 
 declare global {
   interface Window {
     dataLayer?: unknown[];
     gtag?: Gtag;
+    fbq?: Fbq;
   }
 }
 
@@ -18,12 +20,18 @@ function sendEvent(name: string, params: Record<string, unknown> = {}) {
   window.gtag('event', name, params);
 }
 
+function sendPixelEvent(name: string, params: Record<string, unknown> = {}, eventID?: string) {
+  if (typeof window === 'undefined' || typeof window.fbq !== 'function') return;
+  window.fbq('track', name, params, eventID ? { eventID } : undefined);
+}
+
 export function trackPageView(path: string) {
   sendEvent('page_view', {
     page_title: document.title,
     page_location: window.location.href,
     page_path: path,
   });
+  sendPixelEvent('PageView');
 }
 
 export function productAnalyticsItem(product: Product, quantity = 1, channel = 'retail') {
@@ -56,6 +64,14 @@ export function trackViewItem(product: Product) {
     value: Number(product.retailPrice || 0),
     items: [productAnalyticsItem(product)],
   });
+  sendPixelEvent('ViewContent', {
+    content_ids: [product.code],
+    content_name: product.name,
+    content_category: product.category,
+    content_type: 'product',
+    value: Number(product.retailPrice || 0),
+    currency: 'PKR',
+  });
 }
 
 export function trackAddToCart(
@@ -71,6 +87,14 @@ export function trackAddToCart(
     value: Number(price || 0) * quantity,
     items: [{ ...productAnalyticsItem(product, quantity, channel), price: Number(price || 0), item_variant: selectedUnit }],
   });
+  sendPixelEvent('AddToCart', {
+    content_ids: [product.code],
+    content_name: product.name,
+    content_type: 'product',
+    contents: [{ id: product.code, quantity }],
+    value: Number(price || 0) * quantity,
+    currency: 'PKR',
+  });
 }
 
 export function trackViewCart(items: CartItem[]) {
@@ -82,10 +106,19 @@ export function trackViewCart(items: CartItem[]) {
 }
 
 export function trackBeginCheckout(items: CartItem[]) {
+  const value = items.reduce((sum, item) => sum + calculateItemTotal(item), 0);
   sendEvent('begin_checkout', {
     currency: 'PKR',
-    value: items.reduce((sum, item) => sum + calculateItemTotal(item), 0),
+    value,
     items: items.map(cartAnalyticsItem),
+  });
+  sendPixelEvent('InitiateCheckout', {
+    content_ids: items.map((item) => item.code),
+    contents: items.map((item) => ({ id: item.code, quantity: item.qty })),
+    content_type: 'product',
+    num_items: items.reduce((sum, item) => sum + item.qty, 0),
+    value,
+    currency: 'PKR',
   });
 }
 
@@ -111,6 +144,14 @@ export function trackPurchase(order: Order) {
       quantity: item.qty,
     })),
   });
+  sendPixelEvent('Purchase', {
+    content_ids: order.items.map((item) => item.productCode),
+    contents: order.items.map((item) => ({ id: item.productCode, quantity: item.qty })),
+    content_type: 'product',
+    num_items: order.items.reduce((sum, item) => sum + item.qty, 0),
+    value: Number(order.total || order.subtotal || 0),
+    currency: 'PKR',
+  }, order.orderNumber);
 
   try {
     sessionStorage.setItem(storageKey, '1');
@@ -124,4 +165,6 @@ export function trackLead(source: string, details: Record<string, unknown> = {})
     lead_source: source,
     ...details,
   });
+  // WhatsApp clicks are contact intent; the wholesale form is a submitted lead.
+  sendPixelEvent(source.includes('whatsapp') ? 'Contact' : 'Lead', { content_name: source });
 }
