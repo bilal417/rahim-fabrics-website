@@ -18,6 +18,10 @@ DirectoryIndex index.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # One canonical host: send www traffic to the bare domain.
+  RewriteCond %{HTTP_HOST} ^www\.rahimfabrics\.site$ [NC]
+  RewriteRule ^ https://rahimfabrics.site%{REQUEST_URI} [R=301,L,NE]
+
   # Preserve the established canonical URL for the Boski product.
   RewriteRule ^products/two-horse-boski-by-shahji-fabrics/?$ /products/two-horse-boski-by-rahim-fabrics [R=301,L,NE]
 
@@ -27,6 +31,10 @@ DirectoryIndex index.html
   # Preserve the Authorization header for PHP bearer-token authentication.
   RewriteCond %{HTTP:Authorization} ^(.+)$
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
+  # Uploads are stored above public_html so deployments keep them; serve them from there.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^uploads/(products|payment-slips)/([A-Za-z0-9_-]+\.[a-z]+)$ media.php?kind=$1&file=$2 [L,QSA]
 
   # Send API routes to the PHP front controller unless a real API file exists.
   RewriteCond %{REQUEST_FILENAME} !-f

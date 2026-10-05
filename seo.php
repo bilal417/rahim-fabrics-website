@@ -89,7 +89,7 @@ $page = $pages[$path] ?? null;
 $product = null;
 $status = 200;
 $robots = 'index, follow, max-image-preview:large';
-$image = $siteUrl . '/logo.webp';
+$image = $siteUrl . '/images/og-share.jpg';
 $type = 'website';
 
 if (preg_match('#^/products/([a-z0-9-]+)$#', $path, $matches)) {
@@ -97,6 +97,7 @@ if (preg_match('#^/products/([a-z0-9-]+)$#', $path, $matches)) {
         require __DIR__ . '/api/common.php';
         ensureStorefrontSeoUpdates();
         ensureGraceMarjanProductImages();
+        ensureBoskiImageAndBrandFix();
         $statement = db()->prepare('SELECT * FROM products WHERE slug = ? LIMIT 1');
         $statement->execute([$matches[1]]);
         $product = $statement->fetch();

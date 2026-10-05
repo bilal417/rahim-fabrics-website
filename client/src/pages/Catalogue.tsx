@@ -63,6 +63,17 @@ export default function Catalogue() {
     [active, activeSeason, query, items],
   );
 
+  // Only offer filters that currently have stock, so shoppers never land on an empty list.
+  const availableCategories = useMemo(
+    () =>
+      categories.filter((c) => {
+        if (c === 'All Fabrics' || c === active) return true;
+        const season = c in seasonalCollections ? (seasonalCollections[c as keyof typeof seasonalCollections] as readonly string[]) : null;
+        return items.some((p) => p.category === c || (season !== null && season.includes(p.category)));
+      }),
+    [active, items],
+  );
+
   return (
     <>
       <Seo
@@ -105,7 +116,7 @@ export default function Catalogue() {
           <Breadcrumbs items={crumbs} />
           <div className="flex flex-col gap-6 border-b border-black/10 pb-8 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap gap-2" role="tablist" aria-label="Fabric categories">
-              {categories.map((c) => (
+              {availableCategories.map((c) => (
                 <button
                   onClick={() => selectCategory(c)}
                   key={c}

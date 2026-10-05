@@ -395,6 +395,52 @@ function ensureStorefrontSeoUpdates(): void
     }
 }
 
+function ensureBoskiImageAndBrandFix(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $pdo = db();
+    $pdo->beginTransaction();
+    try {
+        $claim = $pdo->prepare('INSERT IGNORE INTO app_migrations (migration_key) VALUES (?)');
+        $claim->execute(['2026-10-05-boski-image-and-brand']);
+        if ($claim->rowCount() === 0) {
+            $pdo->rollBack();
+            return;
+        }
+
+        $find = $pdo->prepare('SELECT id FROM products WHERE code = ? LIMIT 1');
+        $find->execute(['THB-SF-24']);
+        $productId = (int) ($find->fetchColumn() ?: 0);
+        if ($productId > 0) {
+            $pdo->prepare("UPDATE products SET description = REPLACE(description, 'by Shahji Fabrics', 'by Rahim Fabrics') WHERE id = ?")
+                ->execute([$productId]);
+
+            // Earlier deployments deleted the uploaded Boski photo; fall back to the committed one.
+            $images = $pdo->prepare('SELECT url FROM product_images WHERE product_id = ?');
+            $images->execute([$productId]);
+            $working = array_filter($images->fetchAll(PDO::FETCH_COLUMN), static fn (string $url): bool =>
+                !str_starts_with($url, '/uploads/products/') || uploadedFilePath('products', basename($url)) !== null);
+            if (!$working) {
+                $pdo->prepare('DELETE FROM product_images WHERE product_id = ?')->execute([$productId]);
+                $pdo->prepare('INSERT INTO product_images (product_id, url, sort_order) VALUES (?, ?, 0)')
+                    ->execute([$productId, '/images/products/two-horse-boski-cream-website-v1.webp']);
+            }
+        }
+
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
 function ensureGraceDunhillProduct(): void
 {
     static $checked = false;
@@ -640,6 +686,33 @@ function ensureOrderCheckoutColumns(): void
     }
 }
 
+/**
+ * Uploads live one level above public_html so Git deployments, which replace
+ * the web root, never delete them. media.php serves them at /uploads/<kind>/.
+ */
+function uploadDirectory(string $kind): string
+{
+    $persistent = dirname(__DIR__, 2) . '/rahim-fabrics-uploads/' . $kind;
+    if (is_dir($persistent) || @mkdir($persistent, 0755, true) || is_dir($persistent)) {
+        return $persistent;
+    }
+    $public = dirname(__DIR__) . '/uploads/' . $kind;
+    if (!is_dir($public) && !mkdir($public, 0755, true) && !is_dir($public)) {
+        throw new RuntimeException('Could not create upload storage.');
+    }
+    return $public;
+}
+
+function uploadedFilePath(string $kind, string $filename): ?string
+{
+    foreach ([dirname(__DIR__, 2) . '/rahim-fabrics-uploads/' . $kind, dirname(__DIR__) . '/uploads/' . $kind] as $directory) {
+        if (is_file($directory . '/' . $filename)) {
+            return $directory . '/' . $filename;
+        }
+    }
+    return null;
+}
+
 function uploadedPaymentSlip(): ?string
 {
     if (!isset($_FILES['paymentSlip']) || !is_array($_FILES['paymentSlip'])) {
@@ -672,10 +745,7 @@ function uploadedPaymentSlip(): ?string
     if (!isset($extensions[$mime])) {
         fail('Payment slip must be a JPG, PNG, WEBP or PDF file.', 422);
     }
-    $directory = dirname(__DIR__) . '/uploads/payment-slips';
-    if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
-        throw new RuntimeException('Could not create payment slip storage.');
-    }
+    $directory = uploadDirectory('payment-slips');
     $filename = date('Ymd-His') . '-' . bin2hex(random_bytes(8)) . '.' . $extensions[$mime];
     if (!move_uploaded_file($temporary, $directory . '/' . $filename)) {
         throw new RuntimeException('Could not store payment slip.');
@@ -688,9 +758,8 @@ function removePaymentSlip(?string $url): void
     if (!$url || !str_starts_with($url, '/uploads/payment-slips/')) {
         return;
     }
-    $filename = basename($url);
-    $path = dirname(__DIR__) . '/uploads/payment-slips/' . $filename;
-    if (is_file($path)) {
+    $path = uploadedFilePath('payment-slips', basename($url));
+    if ($path) {
         @unlink($path);
     }
 }
@@ -886,10 +955,7 @@ function uploadedImages(): array
     }
 
     $allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    $directory = dirname(__DIR__) . '/uploads/products';
-    if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
-        throw new RuntimeException('The product upload directory could not be created.');
-    }
+    $directory = uploadDirectory('products');
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $validated = [];
     foreach ($names as $index => $originalName) {
@@ -941,9 +1007,8 @@ function removeLocalImage(string $url): void
     if (!str_starts_with($url, '/uploads/products/')) {
         return;
     }
-    $filename = basename($url);
-    $path = dirname(__DIR__) . '/uploads/products/' . $filename;
-    if (is_file($path)) {
+    $path = uploadedFilePath('products', basename($url));
+    if ($path) {
         unlink($path);
     }
 }

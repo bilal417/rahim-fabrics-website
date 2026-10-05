@@ -55,7 +55,7 @@ export default function Seo({
   title,
   description,
   path = '/',
-  image = '/logo.webp',
+  image = '/images/og-share.jpg',
   keywords,
   noindex = false,
   type = 'website',

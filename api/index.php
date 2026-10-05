@@ -34,6 +34,7 @@ try {
         ensureTwoHorseBoskiProduct();
         ensureTwoHorseBoskiMinimumQuantities();
         ensureStorefrontSeoUpdates();
+        ensureBoskiImageAndBrandFix();
     }
     if (str_starts_with($route, '/orders') || $route === '/checkout/payment-options') {
         ensureOrderCheckoutColumns();
