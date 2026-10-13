@@ -19,7 +19,7 @@ export const BRAND_LINE = 'Rahim Fabrics by Safeer Naseer Fabrics';
 
 export const SOCIAL = {
   facebook: 'https://www.facebook.com/profile.php?id=61594455503016',
-  instagram: 'https://www.instagram.com/rahimfabrics/',
+  instagram: 'https://www.instagram.com/rahim.fabrics/',
   tiktok: 'https://www.tiktok.com/@rahimfabrics0?_r=1&_t=ZS-99iwwSmShYC',
 };
 
