@@ -46,6 +46,9 @@ DirectoryIndex index.html
   # Google Merchant Center compatible product feed.
   RewriteRule ^merchant-feed\.xml$ merchant-feed.php [L]
 
+  # Serve the homepage through seo.php too, so its content is rendered into the HTML.
+  RewriteRule ^$ seo.php [L]
+
   # React Router fallback with route-specific SEO metadata and status codes.
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
